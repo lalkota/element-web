@@ -126,7 +126,7 @@ test.describe("Login", () => {
             await page.goto("/");
 
             // Should give us the welcome page initially
-            await expect(page.getByRole("heading", { name: "Welcome to MEETX" })).toBeVisible();
+            await expect(page.getByRole("heading", { name: "Welcome to MeetX" })).toBeVisible();
 
             // Start the login process
             await page.getByRole("link", { name: "Sign in" }).click();

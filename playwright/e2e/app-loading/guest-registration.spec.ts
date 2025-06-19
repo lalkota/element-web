@@ -20,7 +20,7 @@ test.use({
 
 test("Shows the welcome page by default", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Welcome to MEETX" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Welcome to MeetX" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
 });
 
