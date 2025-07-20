@@ -43,7 +43,7 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
     const [sectionsCollapsed, setSectionsCollapsed] = useState<Record<string, boolean>>({});
     const [rooms, setRooms] = useState<Room[]>([]);
     const [directMessages, setDirectMessages] = useState<Room[]>([]);
-    const [currentTheme, setCurrentTheme] = useState<string>("light");
+    const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("light");
 
     const handleToggle = (): void => {
         onToggle(!isCollapsed);
@@ -137,32 +137,38 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
         {
             title: "Direct Messages",
             collapsible: true,
-            collapsed: sectionsCollapsed["directmessages"],
-            items: directMessages.map(room => ({
-                id: room.roomId,
-                icon: "user",
-                label: room.name || "Unknown DM",
-                count: room.getUnreadNotificationCount() || undefined,
-                room: room, // Include room for avatar
-                onClick: () => {
-                    setActiveItem(room.roomId);
-                    dis.dispatch({
-                        action: Action.ViewRoom,
-                        room_id: room.roomId,
-                    });
+            items: [
+                ...directMessages.map((room) => ({
+                    id: room.roomId,
+                    icon: "dm",
+                    label: room.name || "Unknown Room",
+                    room: room, // Include room for avatar
+                    onClick: () => {
+                        setActiveItem(room.roomId);
+                        dis.dispatch({
+                            action: Action.ViewRoom,
+                            room_id: room.roomId,
+                        });
+                    },
+                })),
+                {
+                    id: "create-dm",
+                    icon: "plus",
+                    label: "Start new chat",
+                    onClick: () => {
+                        setActiveItem("create-dm");
+                    },
                 },
-            })),
+            ],
         },
         {
             title: "Rooms",
             collapsible: true,
-            collapsed: sectionsCollapsed["rooms"],
             items: [
-                ...rooms.map(room => ({
+                ...rooms.map((room) => ({
                     id: room.roomId,
                     icon: "room",
                     label: room.name || "Unknown Room",
-                    count: room.getUnreadNotificationCount() || undefined,
                     room: room, // Include room for avatar
                     onClick: () => {
                         setActiveItem(room.roomId);
@@ -178,20 +184,19 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
                     label: "Create Room",
                     onClick: () => {
                         setActiveItem("create-room");
-                        dis.dispatch({ action: Action.CreateRoom });
                     },
                 },
             ],
         },
     ];
 
-    const renderSection = (section: ISidebarSection, sectionIndex: number) => {
-        const sectionId = section.title.toLowerCase().replace(" ", "");
-        const isCollapsed = section.collapsed || sectionsCollapsed[sectionId];
-        
+    const renderSection = (section: ISidebarSection, sectionIndex: number): JSX.Element => {
+        const sectionId = `section-${sectionIndex}`;
+        const isCollapsed = sectionsCollapsed[sectionId] || false;
+
         return (
             <div key={sectionIndex} className="mx_ToggleSidebar_section">
-                {section.collapsible && (
+                {section.collapsible ? (
                     <AccessibleButton
                         className="mx_ToggleSidebar_sectionHeader"
                         onClick={() => toggleSection(sectionId)}
@@ -201,18 +206,20 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
                         })} />
                         <span className="mx_ToggleSidebar_sectionTitle">{section.title}</span>
                     </AccessibleButton>
+                ) : (
+                    <div className="mx_ToggleSidebar_sectionHeader">
+                        <span className="mx_ToggleSidebar_sectionTitle">{section.title}</span>
+                    </div>
                 )}
-                
-                {!isCollapsed && (
+                {(!section.collapsible || !isCollapsed) && (
                     <ul className="mx_ToggleSidebar_sectionList">
                         {section.items.map((item) => (
                             <li key={item.id} className="mx_ToggleSidebar_sectionItem">
                                 <AccessibleButton
                                     className={classNames("mx_ToggleSidebar_sectionButton", {
-                                        "mx_ToggleSidebar_sectionButton--active": item.active || activeItem === item.id,
-                                        [`mx_ToggleSidebar_sectionButton--active-${item.id}`]: item.active || activeItem === item.id,
+                                        [`mx_ToggleSidebar_sectionButton--${item.id}`]: item.active,
                                     })}
-                                    onClick={item.onClick || (() => {})}
+                                    onClick={item.onClick}
                                 >
                                     {item.room ? (
                                         <RoomAvatar 

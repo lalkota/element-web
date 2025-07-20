@@ -10,13 +10,11 @@ Please see LICENSE files in the repository root for full details.
     flex-direction: column;
     width: 320px;
     height: 100%;
-    background-color: var(--cpd-color-bg-canvas-default);
-    border-right: 1px solid var(--border-color);
     transition: width 0.3s ease-in-out;
     z-index: 10;
 
     &.mx_ToggleSidebar--collapsed {
-        width: 64px;
+        width: 80px;
     }
 }
 
@@ -25,15 +23,21 @@ Please see LICENSE files in the repository root for full details.
     align-items: center;
     justify-content: space-between;
     padding: 16px 20px;
-    border-bottom: 1px solid var(--border-color);
     min-height: 64px;
-    background-color: #ffffff;
 }
 
 .mx_ToggleSidebar_logo {
     display: flex;
     align-items: center;
     gap: 8px;
+    
+    .mx_ToggleSidebar--collapsed & {
+        justify-content: center;
+        
+        .mx_ToggleSidebar_logoText {
+            display: none;
+        }
+    }
 }
 
 .mx_ToggleSidebar_logoText {
@@ -44,23 +48,13 @@ Please see LICENSE files in the repository root for full details.
 }
 
 .mx_ToggleSidebar_logoIcon {
-    width: 24px;
-    height: 24px;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    border-radius: 4px;
-    position: relative;
-    
-    &::after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 12px;
-        height: 12px;
-        background-color: white;
-        border-radius: 2px;
-    }
+    width: 132px;
+    height: 32px;
+    background-image: url("$(res)/img/logo/meetx-logo-light.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    flex-shrink: 0;
 }
 
 .mx_ToggleSidebar_toggleButton {
@@ -81,13 +75,12 @@ Please see LICENSE files in the repository root for full details.
 }
 
 .mx_ToggleSidebar_toggleIcon {
-    width: 16px;
-    height: 16px;
-    background-color: var(--cpd-color-icon-secondary);
-    mask-image: url("$(res)/img/element-icons/roomlist/collapse-off.svg");
-    mask-size: contain;
-    mask-repeat: no-repeat;
-    mask-position: center;
+    width: 24px;
+    height: 24px;
+    background-image: url("$(res)/img/element-icons/roomlist/collapse-off.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
     transition: transform 0.3s ease;
 
     .mx_ToggleSidebar--collapsed & {
@@ -194,8 +187,6 @@ Please see LICENSE files in the repository root for full details.
 
 .mx_ToggleSidebar_footer {
     padding: 16px 20px;
-    border-top: 1px solid var(--border-color);
-    background-color: #ffffff;
 }
 
 /* New styles for updated component structure */
@@ -408,6 +399,15 @@ Please see LICENSE files in the repository root for full details.
     }
 }
 
+.mx_ToggleSidebar_roomAvatar {
+    width: 24px !important;
+    height: 24px !important;
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 12px;
+}
+
 .mx_ToggleSidebar_sectionLabel {
     font-size: 14px;
     font-weight: 500;
@@ -428,6 +428,25 @@ Please see LICENSE files in the repository root for full details.
     min-width: 20px;
     text-align: center;
     margin-left: auto;
+    display: inline-block;
+    
+    /* Hide count when it's 0 */
+    &:empty {
+        display: none;
+    }
+    
+    /* Different colors for different notification levels */
+    &.mx_ToggleSidebar_count--highlight {
+        background-color: #ff4757;
+    }
+    
+    &.mx_ToggleSidebar_count--notification {
+        background-color: #3FDD78;
+    }
+    
+    &.mx_ToggleSidebar_count--activity {
+        background-color: #6b7280;
+    }
 }
 
 .mx_ToggleSidebar_notifications,
@@ -455,11 +474,11 @@ Please see LICENSE files in the repository root for full details.
 }
 
 .mx_ToggleSidebar_notificationIcon {
-    mask-image: url("$(res)/img/element-icons/notifications.svg");
+    mask-image: url("$(res)/img/element-icons/roomlist/notification.svg");
 }
 
 .mx_ToggleSidebar_settingsIcon {
-    mask-image: url("$(res)/img/element-icons/roomlist/dialpad.svg");
+    mask-image: url("$(res)/img/element-icons/roomlist/setting.svg");
 }
 
 .mx_ToggleSidebar_notificationLabel,
@@ -471,10 +490,10 @@ Please see LICENSE files in the repository root for full details.
 .mx_ToggleSidebar_user {
     display: flex;
     align-items: center;
-    padding: 12px 0;
+    padding: 12px 16px;
     margin: 16px 0;
     border-radius: 8px;
-    background: var(--background-color);
+    background: var(--background);
     box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
     inner-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -517,33 +536,69 @@ Please see LICENSE files in the repository root for full details.
     color: #6b7280;
 }
 
-.mx_ToggleSidebar_theme {
+.mx_ToggleSidebar_themeToggle {
+    display: flex;
+    gap: 8px;
+    padding: 4px;
+    background-color: #f3f4f6;
+    border-radius: 12px;
+}
+
+.mx_ToggleSidebar_themeButton {
+    flex: 1;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    &.mx_ToggleSidebar_themeButton--active {
+        background-color: #ffffff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        
+        .mx_ToggleSidebar_themeLabel {
+            color: #111827;
+            font-weight: 600;
+        }
+    }
 }
 
 .mx_ToggleSidebar_themeIcon {
     width: 20px;
     height: 20px;
-    background-color: #f59e0b;
-    margin-right: 12px;
-    mask-image: url("$(res)/img/element-icons/roomlist/dark-light-mode.svg");
+    background-color: #6b7280;
     mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;
+    transition: background-color 0.2s ease;
+    
+    &.mx_ToggleSidebar_themeIcon--light {
+        mask-image: url("$(res)/img/element-icons/sun.svg");
+    }
+    
+    &.mx_ToggleSidebar_themeIcon--dark {
+        mask-image: url("$(res)/img/element-icons/moon.svg");
+    }
+    
+    .mx_ToggleSidebar_themeButton--active & {
+        background-color: #374151;
+    }
 }
 
 .mx_ToggleSidebar_themeLabel {
     font-size: 14px;
-    color: #374151;
-    flex: 1;
-}
-
-.mx_ToggleSidebar_themeDark {
-    color: #9ca3af;
-    font-size: 14px;
+    color: #6b7280;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
 /* Collapsed state styles */
@@ -555,9 +610,19 @@ Please see LICENSE files in the repository root for full details.
     .mx_ToggleSidebar_notificationLabel,
     .mx_ToggleSidebar_settingsLabel,
     .mx_ToggleSidebar_userInfo,
-    .mx_ToggleSidebar_themeLabel,
-    .mx_ToggleSidebar_themeDark {
+    .mx_ToggleSidebar_themeLabel {
         display: none;
+    }
+    
+    .mx_ToggleSidebar_themeToggle {
+        flex-direction: column;
+        gap: 4px;
+        padding: 2px;
+        
+        .mx_ToggleSidebar_themeButton {
+            padding: 8px;
+            justify-content: center;
+        }
     }
     
     .mx_ToggleSidebar_header {
@@ -574,12 +639,12 @@ Please see LICENSE files in the repository root for full details.
     }
     
     .mx_ToggleSidebar_sectionHeader {
-        padding: 8px 12px;
+        padding: 8px 20px;
         justify-content: center;
     }
     
     .mx_ToggleSidebar_sectionButton {
-        padding: 10px 12px;
+        padding: 10px 20px;
         justify-content: center;
     }
     
@@ -605,12 +670,20 @@ Please see LICENSE files in the repository root for full details.
     
     .mx_ToggleSidebar_user {
         justify-content: center;
+        padding: 0;
+        box-shadow: none;
     }
     
     .mx_ToggleSidebar_userAvatar {
         margin-right: 0;
     }
+
+    .mx_ToggleSidebar_sectionChevron {
+        margin: 0;
+    }
 }
+
+
 
 /* Responsive behavior */
 @media (max-width: 768px) {

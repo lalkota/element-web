@@ -739,32 +739,10 @@ class LoggedInView extends React.Component<IProps, IState> {
                 >
                     <ToastContainer />
                     <div className={bodyClasses}>
-                        <ToggleSidebar
-                            isCollapsed={this.state.toggleSidebarCollapsed}
-                            onToggle={this.onToggleSidebar}
-                        />
-                        <div className="mx_LeftPanel_outerWrapper">
-                            <LeftPanelLiveShareWarning isMinimized={shouldUseMinimizedUI || false} />
-                            <div className={leftPanelWrapperClasses}>
-                                {!useNewRoomList && (
-                                    <BackdropPanel blurMultiplier={0.5} backgroundImage={this.state.backgroundImage} />
-                                )}
-                                {/* <SpacePanel /> */}
-                                {!useNewRoomList && <BackdropPanel backgroundImage={this.state.backgroundImage} />}
-                                <div
-                                    className="mx_LeftPanel_wrapper--user"
-                                    ref={this._resizeContainer}
-                                    data-collapsed={shouldUseMinimizedUI ? true : undefined}
-                                >
-                                    <LeftPanel
-                                        pageType={this.props.page_type as PageTypes}
-                                        isMinimized={shouldUseMinimizedUI || false}
-                                        resizeNotifier={this.props.resizeNotifier}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        <ResizeHandle passRef={this.resizeHandler} id="lp-resizer" />
+                            <ToggleSidebar
+                                isCollapsed={this.state.toggleSidebarCollapsed}
+                                onToggle={this.onToggleSidebar}
+                            />                      
                         <div className="mx_RoomView_wrapper">
                             <div className="mx_MatrixChat_Header_Wrapper">
 
@@ -780,7 +758,33 @@ class LoggedInView extends React.Component<IProps, IState> {
                                 </div>
                                 <UserMenu isPanelCollapsed={false} />
                             </div>
-                            {pageElement}
+                            <div className="mx_main_body_panel">
+                                {this.props.page_type !== PageTypes.HomePage && (
+                                    <div className="mx_LeftPanel_outerWrapper">
+                                        <LeftPanelLiveShareWarning isMinimized={shouldUseMinimizedUI || false} />
+                                        <ResizeHandle passRef={this.resizeHandler} id="lp-resizer" />
+                                        <div className={leftPanelWrapperClasses}>
+                                            {!useNewRoomList && (
+                                                <BackdropPanel blurMultiplier={0.5} backgroundImage={this.state.backgroundImage} />
+                                            )}
+                                            {/* <SpacePanel /> */}
+                                            {!useNewRoomList && <BackdropPanel backgroundImage={this.state.backgroundImage} />}
+                                            <div
+                                                className="mx_LeftPanel_wrapper--user"
+                                                ref={this._resizeContainer}
+                                                data-collapsed={shouldUseMinimizedUI ? true : undefined}
+                                            >
+                                                <LeftPanel
+                                                    pageType={this.props.page_type as PageTypes}
+                                                    isMinimized={shouldUseMinimizedUI || false}
+                                                    resizeNotifier={this.props.resizeNotifier}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                {pageElement}
+                            </div>
                         </div>
                     </div>
                 </div>
