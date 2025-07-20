@@ -117,13 +117,13 @@ const HomePage: React.FC<IProps> = ({ justRegistered = false }) => {
                 {introSection}
                 <div className="mx_HomePage_default_buttons">
                     <AccessibleButton onClick={onClickSendDm} className="mx_HomePage_button_sendDm">
-                        {_tDom("onboarding|send_dm")}
+                        {_tDom("onboarding|send_dm")} <div className="right-arrow" />
                     </AccessibleButton>
                     <AccessibleButton onClick={onClickExplore} className="mx_HomePage_button_explore">
-                        {_tDom("onboarding|explore_rooms")}
+                        {_tDom("onboarding|explore_rooms")} <div className="right-arrow" />
                     </AccessibleButton>
                     <AccessibleButton onClick={onClickNewRoom} className="mx_HomePage_button_createGroup">
-                        {_tDom("onboarding|create_room")}
+                        {_tDom("onboarding|create_room")} <div className="right-arrow" />
                     </AccessibleButton>
                 </div>
             </div>

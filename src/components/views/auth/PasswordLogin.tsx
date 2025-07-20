@@ -413,7 +413,7 @@ export default class PasswordLogin extends React.PureComponent<IProps, IState> {
         return (
             <div>
                 <form onSubmit={this.onSubmitForm}>
-                    {loginType}
+                    {/* {loginType} */}
                     {loginField}
                     <Field
                         id="mx_LoginForm_password"

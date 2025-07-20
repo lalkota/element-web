@@ -10,6 +10,9 @@ import React, { type JSX, useCallback, useMemo, useState } from "react";
 import { Body as BodyText, Button, IconButton, Menu, MenuItem, Tooltip } from "@vector-im/compound-web";
 import VideoCallIcon from "@vector-im/compound-design-tokens/assets/web/icons/video-call-solid";
 import VoiceCallIcon from "@vector-im/compound-design-tokens/assets/web/icons/voice-call-solid";
+import CallIcon from "../../../../../res/img/element-icons/room/composer/call.svg";
+import VideoIcon from "../../../../../res/img/element-icons/room/composer/video.svg";
+
 import CloseCallIcon from "@vector-im/compound-design-tokens/assets/web/icons/close";
 import ThreadsIcon from "@vector-im/compound-design-tokens/assets/web/icons/threads-solid";
 import RoomInfoIcon from "@vector-im/compound-design-tokens/assets/web/icons/info-solid";
@@ -114,7 +117,8 @@ export default function RoomHeader({
     const toggleCallButton = (
         <Tooltip label={isViewingCall ? _t("voip|minimise_call") : _t("voip|maximise_call")}>
             <IconButton onClick={toggleCall}>
-                <VideoCallIcon />
+                {/* <VideoCallIcon /> */}
+                <img src={VideoIcon} alt="Video Call" />
             </IconButton>
         </Tooltip>
     );
@@ -130,6 +134,8 @@ export default function RoomHeader({
                 color="primary"
                 aria-label={videoCallDisabledReason ?? _t("action|join")}
             >
+                {/* <VideoCallIcon /> */}
+                <img src={VideoIcon} alt="Video Call" />
                 {_t("action|join")}
             </Button>
         </Tooltip>
@@ -137,7 +143,8 @@ export default function RoomHeader({
 
     const callIconWithTooltip = (
         <Tooltip label={videoCallDisabledReason ?? _t("voip|video_call")}>
-            <VideoCallIcon />
+            {/* <VideoCallIcon /> */}
+            <img src={VideoIcon} alt="Video Call" />
         </Tooltip>
     );
 
@@ -209,7 +216,8 @@ export default function RoomHeader({
                 aria-label={voiceCallDisabledReason ?? _t("voip|voice_call")}
                 onClick={(ev) => voiceCallClick(ev, callOptions[0])}
             >
-                <VoiceCallIcon />
+                {/* <VoiceCallIcon /> */}
+                <img src={CallIcon} alt="Voice Call" />
             </IconButton>
         </Tooltip>
     );

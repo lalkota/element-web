@@ -123,9 +123,9 @@ export default class ReactionsRowButton extends React.PureComponent<IProps> {
                     disabled={this.props.disabled}
                 >
                     {reactionContent}
-                    <span className="mx_ReactionsRowButton_count" aria-hidden="true">
+                    {/* <span className="mx_ReactionsRowButton_count" aria-hidden="true">
                         {count}
-                    </span>
+                    </span> */}
                 </AccessibleButton>
             </ReactionsRowButtonTooltip>
         );

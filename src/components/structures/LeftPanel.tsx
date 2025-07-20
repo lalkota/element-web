@@ -378,6 +378,8 @@ export default class LeftPanel extends React.Component<IProps, IState> {
         );
     }
 
+
+
     public render(): React.ReactNode {
         const useNewRoomList = SettingsStore.getValue("feature_new_room_list");
         const containerClasses = classNames({

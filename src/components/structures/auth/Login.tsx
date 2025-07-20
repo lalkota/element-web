@@ -512,19 +512,23 @@ export default class LoginComponent extends React.PureComponent<IProps, IState> 
             );
         } else if (SettingsStore.getValue(UIFeature.Registration)) {
             footer = (
-                <span className="mx_AuthBody_changeFlow">
+                <div className="mx_AuthBody_changeFlow">
                     {_t(
                         "auth|create_account_prompt",
                         {},
                         {
                             a: (sub) => (
-                                <AccessibleButton kind="link_inline" onClick={this.onTryRegisterClick}>
+                                <AccessibleButton
+                                    className="mx_Login_submit signup-button"
+                                    kind="primary"
+                                    onClick={this.onTryRegisterClick}
+                                >
                                     {sub}
                                 </AccessibleButton>
                             ),
                         },
                     )}
-                </span>
+                </div>
             );
         }
 
@@ -532,19 +536,25 @@ export default class LoginComponent extends React.PureComponent<IProps, IState> 
             <AuthPage>
                 <AuthHeader disableLanguageSelector={this.props.isSyncing || this.state.busyLoggingIn} />
                 <AuthBody>
-                    <h1>
-                        {_t("action|sign_in")}
-                        {loader}
-                    </h1>
-                    {errorTextSection}
-                    {serverDeadSection}
-                    <ServerPicker
-                        serverConfig={this.props.serverConfig}
-                        onServerConfigChange={this.props.onServerConfigChange}
-                        disabled={this.isBusy()}
-                    />
-                    {this.renderLoginComponentForFlows()}
-                    {footer}
+                    <div className="mx_AuthBody_paddedHeader">
+                        <div className="mx_AuthPage_logo">
+                            <img src={require("../../../../res/themes/element/img/login/meetex-logo.svg").default} alt="Meetex Logo" />
+                        </div>
+                        <h1>
+                            {_t("action|sign_in")}
+                            {loader}
+                        </h1>
+                        {errorTextSection}
+                        {serverDeadSection}
+                        {/* <ServerPicker
+                            serverConfig={this.props.serverConfig}
+                            onServerConfigChange={this.props.onServerConfigChange}
+                            disabled={this.isBusy()}
+                        /> */}
+                        {this.renderLoginComponentForFlows()}
+                        <div className="mx_AuthBody_paddedFooter_subtitle">Or</div>
+                        {footer}
+                    </div>
                 </AuthBody>
             </AuthPage>
         );

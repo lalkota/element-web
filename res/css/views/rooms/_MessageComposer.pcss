@@ -9,10 +9,11 @@ Please see LICENSE files in the repository root for full details.
 .mx_MessageComposer_wrapper {
     vertical-align: middle;
     margin: auto;
-    border-top: 1px solid $primary-hairline-color;
+    border: 2px solid var(--roomlist-bg-color);
     position: relative;
     padding-left: 42px;
     padding-right: 16px;
+    border-radius: 32px;
 }
 
 .mx_MessageComposer_replaced_wrapper {
@@ -273,7 +274,7 @@ Please see LICENSE files in the repository root for full details.
 }
 
 .mx_MessageComposer_buttonMenu::before {
-    mask-image: url("@vector-im/compound-design-tokens/icons/overflow-horizontal.svg");
+    mask-image: url("$(res)/img/element-icons/room/composer/overflow-horizontal.svg");
     mask-size: 24px;
 }
 
@@ -283,7 +284,7 @@ Please see LICENSE files in the repository root for full details.
     width: 32px;
     height: 32px;
     border-radius: 100%;
-    background-color: var(--cpd-color-icon-accent-tertiary);
+    background-color: var(--cpd-color-bg-action-primary-rest);
 
     &::before {
         position: absolute;
@@ -292,7 +293,7 @@ Please see LICENSE files in the repository root for full details.
         top: 8px;
         left: 9px;
 
-        mask-image: url("@vector-im/compound-design-tokens/icons/send-solid.svg");
+        mask-image: url("$(res)/img/element-icons/room/composer/send-solid.svg");
         mask-repeat: no-repeat;
         mask-size: contain;
         mask-position: center;

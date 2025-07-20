@@ -403,7 +403,7 @@ const SpacePanel: React.FC = () => {
                         ref={ref}
                         aria-label={_t("common|spaces")}
                     >
-                        <UserMenu isPanelCollapsed={isPanelCollapsed}>
+                        {/* <UserMenu isPanelCollapsed={isPanelCollapsed}>
                             <AccessibleButton
                                 className={classNames("mx_SpacePanel_toggleCollapse", { expanded: !isPanelCollapsed })}
                                 onClick={() => setPanelCollapsed(!isPanelCollapsed)}
@@ -415,7 +415,41 @@ const SpacePanel: React.FC = () => {
                                     />
                                 }
                             />
-                        </UserMenu>
+                        </UserMenu> */}
+                        <ul className="mx_SpacePanel_app_list">
+                            <li>
+                                <button>
+                                    <div className="home" />
+                                </button>
+                            </li>
+                            <li>
+                                <button className="active">
+                                    <div className="messages" />
+                                </button>
+                            </li>
+                            <li>
+                                <button>
+                                    <div className="video" />
+                                </button>
+                            </li>
+                            <li>
+                                <button>
+                                    <div className="people" />
+                                </button>
+                            </li>
+                            <li>
+                                <button>
+                                    <div className="calendar" />
+                                </button>
+                            </li>
+                        </ul>
+
+
+
+
+
+
+
                         <Droppable droppableId="top-level-spaces">
                             {(provided, snapshot) => (
                                 <InnerSpacePanel

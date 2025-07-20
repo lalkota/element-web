@@ -472,7 +472,11 @@ export default class ForgotPassword extends React.Component<Props, State> {
         return (
             <AuthPage>
                 <AuthHeader />
-                <AuthBody className="mx_AuthBody_forgot-password">{resetPasswordJsx}</AuthBody>
+                <AuthBody className="mx_AuthBody_forgot-password">
+                    <div className="mx_AuthBody_paddedHeader">
+                        {resetPasswordJsx}
+                    </div>
+                </AuthBody>
             </AuthPage>
         );
     }

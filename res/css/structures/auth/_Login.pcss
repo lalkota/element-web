@@ -76,11 +76,34 @@ Please see LICENSE files in the repository root for full details.
 
 div.mx_AccessibleButton_kind_link.mx_Login_forgot {
     display: block;
-    margin-top: 24px;
+    margin-top: 8px;
+    font-size: $font-12px;
+    color: var(--cpd-color-bg-action-primary-rest);
+    text-decoration: none;
+    text-align: left;
 
     &.mx_AccessibleButton_disabled {
         cursor: not-allowed;
     }
+}
+
+.mx_AuthBody_paddedFooter_subtitle {
+    font-size: $font-12px;
+    color: $authpage-secondary-color;
+    width: max-content;
+    margin: 8px auto;
+    text-align: center;
+}
+
+.signup-button {
+    margin-bottom: 16px !important;
+    border: none !important;
+    background-color: var(--cpd-color-primary-light) !important;
+    color: var(--cpd-color-text-action-accent) !important;
+    font-weight: var(--cpd-font-weight-semibold) !important;
+    font-size: 15px !important;
+    width: 100% !important;
+    border-radius: 12px !important;
 }
 
 .mx_Login_spinner {

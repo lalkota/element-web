@@ -118,6 +118,7 @@ import { LargeLoader } from "./LargeLoader";
 import { isVideoRoom } from "../../utils/video-rooms";
 import { SDKContext } from "../../contexts/SDKContext";
 import { RoomSearchView } from "./RoomSearchView";
+import DMRoomMap from "../../utils/DMRoomMap";
 import eventSearch, { type SearchInfo, SearchScope } from "../../Searching";
 import { WidgetType } from "../../widgets/WidgetType";
 import WidgetUtils from "../../utils/WidgetUtils";
@@ -2638,6 +2639,7 @@ export class RoomView extends React.Component<IRoomProps, IRoomState> {
                                 className={mainSplitContentClasses}
                                 ref={this.roomViewBody}
                                 data-layout={this.state.layout}
+                                data-is-direct={this.state.room && DMRoomMap.shared().getUserIdForRoomId(this.state.room.roomId) ? "true" : "false"}
                             >
                                 <RoomHeader
                                     room={this.state.room}

@@ -224,7 +224,7 @@ export default class ReactionsRow extends React.PureComponent<IProps, IState> {
             <div className="mx_ReactionsRow" role="toolbar" aria-label={_t("common|reactions")}>
                 {items}
                 {showAllButton}
-                {addReactionButton}
+                {/* {addReactionButton} */}
             </div>
         );
     }

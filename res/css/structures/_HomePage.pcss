@@ -48,51 +48,80 @@ Please see LICENSE files in the repository root for full details.
 
     .mx_HomePage_default_buttons {
         display: flex;
-        margin: 60px auto 0;
+        margin: 20px auto 0;
         width: fit-content;
+        flex-direction: column;
+        min-width: 360px;
 
         .mx_AccessibleButton {
-            padding: 73px 8px 15px; /* top: 20px top padding + 40px icon + 13px margin */
-
-            width: 160px;
-            min-height: 132px;
-            margin: 20px;
+            padding: 15px 15px 15px 100px;
+            background: white;
+            width: 100%;
+            min-height: 100px;
+            margin-bottom: 20px;
             position: relative;
-            display: inline-block;
-            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            border-radius: 24px;
             vertical-align: top;
             word-break: break-word;
             box-sizing: border-box;
-
+            border: 1px solid #EAECF0;
             font-weight: var(--cpd-font-weight-semibold);
             font-size: $font-15px;
             line-height: $font-20px;
-            color: #fff; /* on all themes */
-            background-color: $accent;
+            color: #000; /* on all themes */
 
             &::before {
                 top: 20px;
-                left: 60px; /* (160px-40px)/2 */
-                width: 40px;
-                height: 40px;
-
+                left: 25px; 
+                width: 60px;
+                height: 60px;
                 content: "";
                 position: absolute;
-                background-color: #fff; /* on all themes */
-                mask-repeat: no-repeat;
-                mask-size: contain;
+                background-repeat: no-repeat;
+                background-size: contain;
+            }
+
+            .right-arrow {
+                background-image: url("$(res)/img/element-icons/right-arrow.svg");
+                width: 40px;
+                height: 40px;
+                background-repeat: no-repeat;
+                background-size: contain;
+                margin-left: auto;
+                opacity: 0.3;
+            }
+
+            &.mx_HomePage_button_sendDm {
+                background: linear-gradient(180deg,rgba(255, 255, 255, 1) 0%, rgba(229, 242, 255, 1) 100%);
+            }
+
+            &.mx_HomePage_button_explore {
+                background: linear-gradient(180deg,rgba(63, 221, 120, 0) 0%, rgba(103, 29, 180, 0.2) 100%);
+            }
+
+            &.mx_HomePage_button_createGroup {
+                background: linear-gradient(180deg,rgba(255, 1, 118, 0) 0%, rgba(255, 1, 118, 0.2) 100%);
             }
 
             &.mx_HomePage_button_sendDm::before {
-                mask-image: url("$(res)/img/element-icons/feedback.svg");
+                background-image: url("$(res)/img/element-icons/dm.svg");
             }
 
             &.mx_HomePage_button_explore::before {
-                mask-image: url("$(res)/img/element-icons/roomlist/explore.svg");
+                background-image: url("$(res)/img/element-icons/explore-rooms.svg");
             }
 
             &.mx_HomePage_button_createGroup::before {
-                mask-image: url("$(res)/img/element-icons/group-members.svg");
+                background-image: url("$(res)/img/element-icons/group-chat.svg");
+            }
+
+            &:hover {
+                 box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.10);
+                 .right-arrow {
+                     opacity: 1;
+                 }
             }
         }
     }

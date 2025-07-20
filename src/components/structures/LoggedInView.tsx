@@ -25,6 +25,7 @@ import { isOnlyCtrlOrCmdKeyEvent, Key } from "../../Keyboard";
 import PageTypes from "../../PageTypes";
 import MediaDeviceHandler from "../../MediaDeviceHandler";
 import dis from "../../dispatcher/dispatcher";
+import { _t } from "../../languageHandler";
 import { type IMatrixClientCreds } from "../../MatrixClientPeg";
 import SettingsStore from "../../settings/SettingsStore";
 import { SettingLevel } from "../../settings/SettingLevel";
@@ -68,6 +69,12 @@ import { type ConfigOptions } from "../../SdkConfig";
 import { MatrixClientContextProvider } from "./MatrixClientContextProvider";
 import { Landmark, LandmarkNavigation } from "../../accessibility/LandmarkNavigation";
 
+import UserMenu from "./UserMenu";
+import RoomSearch from "./RoomSearch";
+import ToggleSidebar from "./ToggleSidebar";
+import AccessibleButton, { type ButtonEvent } from "../views/elements/AccessibleButton";
+import PosthogTrackers from "../../PosthogTrackers";
+
 // We need to fetch each pinned message individually (if we don't already have it)
 // so each pinned message may trigger a request. Limit the number per room for sanity.
 // NB. this is just for server notices rather than pinned messages in general.
@@ -109,6 +116,7 @@ interface IState {
     useCompactLayout: boolean;
     activeCalls: Array<MatrixCall>;
     backgroundImage?: string;
+    toggleSidebarCollapsed: boolean;
 }
 
 /**
@@ -142,6 +150,7 @@ class LoggedInView extends React.Component<IProps, IState> {
             useCompactLayout: SettingsStore.getValue("useCompactLayout"),
             usageLimitDismissed: false,
             activeCalls: LegacyCallHandler.instance.getAllActiveCalls(),
+            toggleSidebarCollapsed: false,
         };
 
         // stash the MatrixClient in case we log out before we are unmounted
@@ -254,6 +263,15 @@ class LoggedInView extends React.Component<IProps, IState> {
             return true;
         }
         return this._roomView.current.canResetTimeline();
+    };
+
+    private onExplore = (ev: ButtonEvent): void => {
+        dis.fire(Action.ViewRoomDirectory);
+        PosthogTrackers.trackInteraction("WebLeftPanelExploreRoomsButton", ev);
+    };
+
+    private onToggleSidebar = (collapsed: boolean): void => {
+        this.setState({ toggleSidebarCollapsed: collapsed });
     };
 
     private createResizer(): Resizer<ICollapseConfig, CollapseItem> {
@@ -721,13 +739,17 @@ class LoggedInView extends React.Component<IProps, IState> {
                 >
                     <ToastContainer />
                     <div className={bodyClasses}>
+                        <ToggleSidebar
+                            isCollapsed={this.state.toggleSidebarCollapsed}
+                            onToggle={this.onToggleSidebar}
+                        />
                         <div className="mx_LeftPanel_outerWrapper">
                             <LeftPanelLiveShareWarning isMinimized={shouldUseMinimizedUI || false} />
                             <div className={leftPanelWrapperClasses}>
                                 {!useNewRoomList && (
                                     <BackdropPanel blurMultiplier={0.5} backgroundImage={this.state.backgroundImage} />
                                 )}
-                                <SpacePanel />
+                                {/* <SpacePanel /> */}
                                 {!useNewRoomList && <BackdropPanel backgroundImage={this.state.backgroundImage} />}
                                 <div
                                     className="mx_LeftPanel_wrapper--user"
@@ -743,7 +765,23 @@ class LoggedInView extends React.Component<IProps, IState> {
                             </div>
                         </div>
                         <ResizeHandle passRef={this.resizeHandler} id="lp-resizer" />
-                        <div className="mx_RoomView_wrapper">{pageElement}</div>
+                        <div className="mx_RoomView_wrapper">
+                            <div className="mx_MatrixChat_Header_Wrapper">
+
+                                <div className="mx_Header_actions">
+                                    <RoomSearch isMinimized={false} />
+                                    <div className="explore_container">
+                                        <AccessibleButton
+                                            className="mx_Header_exploreButton"
+                                            onClick={this.onExplore}
+                                            title={_t("action|explore_rooms")}
+                                        />
+                                    </div>
+                                </div>
+                                <UserMenu isPanelCollapsed={false} />
+                            </div>
+                            {pageElement}
+                        </div>
                     </div>
                 </div>
                 <PipContainer />

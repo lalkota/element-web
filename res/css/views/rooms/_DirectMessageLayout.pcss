@@ -1,0 +1,190 @@
+/*
+Copyright 2024 New Vector Ltd.
+
+SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Commercial
+Please see LICENSE files in the repository root for full details.
+*/
+
+/* Custom styling for direct message chats to display inbound messages on the left and outbound messages on the right */
+
+/* Apply these styles only to direct message rooms */
+.mx_RoomView_body[data-is-direct="true"] {
+    /* Adjust the layout for direct messages */
+    .mx_EventTile {
+        /* Clear the default layout to allow for left/right positioning */
+        clear: both;
+        width: 100%;
+        max-width: 100%;
+        padding: 2px 15px;
+        margin-bottom: 4px;
+        box-sizing: border-box;
+        
+        /* Hide avatars for all messages */
+        .mx_EventTile_avatar {
+            display: none !important;
+        }
+        
+        /* Improve overall message appearance */
+        .mx_EventTile_line {
+            position: relative;
+            border: none;
+            display: inline-block;
+            max-width: 100%;
+            box-sizing: border-box;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+        
+        /* Improve text readability */
+        .mx_EventTile_content {
+            font-size: 14px;
+            line-height: 1.4;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            box-sizing: border-box;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* Style the message body */
+        .mx_MTextBody {
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Inbound messages (from other users) */
+        &[data-self="false"] {
+            /* Align to the left */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: start;
+            padding-left: 32px;
+
+            .mx_EventTile_line {
+                float: left;
+                margin-right: 35%;
+                margin-left: 0;
+                clear: left;
+                border-radius: 0px 8px 8px 8px;
+                background-color: #F9FAFB;
+                padding: 12px 16px;
+                margin-bottom: 2px;
+                border: 1px solid #EAECF0;
+                display: inline-block;
+                width: fit-content;
+                max-width: 65%;
+            }
+            
+            /* Align reactions to the left */
+            .mx_ReactionsRow {
+                justify-content: flex-start;
+                margin-left: 0;
+                clear: left;
+            }
+
+            .mx_MessageActionBar {
+                left: 0 !important;
+                right: auto !important;
+            }
+            
+            /* Add more space between messages */
+            margin-bottom: 12px;
+        }
+        
+        /* Outbound messages (from current user) */
+        &[data-self="true"] {
+            /* Align to the right */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: end;
+            padding-right: 32px;
+
+            .mx_MessageActionBar {
+                right: 0 !important;
+                left: auto !important;
+            }
+
+            .mx_EventTile_footer {
+                margin: 0;
+            }
+
+            .mx_EventTile_line {
+                float: right;
+                margin-left: 35%;
+                margin-right: 0;
+                clear: right;
+                border-radius: 8px 0 8px 8px;
+                color: var(--cpd-color-bg-action-primary-rest);
+                background-color: rgba(23, 119, 209, 0.05);
+                padding: 12px 16px;
+                margin-bottom: 2px;
+                border: 1px solid rgba(23, 119, 209, 0.1);
+                display: inline-block;
+                width: fit-content;
+                max-width: 65%;
+            }
+            
+            /* Align reactions to the right */
+            .mx_ReactionsRow {
+                justify-content: flex-end;
+                margin-right: 0;
+                clear: right;
+            }
+            
+            /* Add more space between messages */
+            margin-bottom: 12px;
+        }
+        
+        /* Ensure thread summaries and other elements clear the floats */
+        .mx_ThreadSummary {
+            clear: both;
+        }
+    }
+    
+    /* Ensure info messages and other non-message events are centered */
+    .mx_EventTile_info {
+        clear: both;
+        
+        .mx_EventTile_line {
+            float: none !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+        }
+    }
+    
+    /* Remove sender name from messages since it's a 1:1 chat */
+    .mx_EventTile_senderDetails {
+        display: none;
+    }
+    
+    /* Add more vertical space between messages */
+    .mx_RoomView_MessageList {
+        padding: 15px 0;
+    }
+    
+    /* Message container */
+    .mx_EventTile {
+        position: relative;
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    /* Message content wrapper */
+    .mx_EventTile_line {
+        position: relative;
+        display: inline-flex;
+        align-items: flex-end;
+        max-width: 100%;
+    }
+
+    
+    /* Remove read receipts */
+    .mx_ReadReceiptGroup {
+        display: none;
+    }
+}

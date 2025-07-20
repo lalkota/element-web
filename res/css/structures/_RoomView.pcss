@@ -32,10 +32,13 @@ Please see LICENSE files in the repository root for full details.
     }
 
     .mx_MessageComposer {
-        width: 100%;
+        width: calc(100% - 64px);
         flex: 0 0 auto;
-        margin-right: 2px;
-        padding-bottom: 1em;
+        margin: 16px 32px;
+        padding-bottom: 0;
+        border-radius: 32px;
+        border: 1px solid var(--roomlist-border-color);
+        background-color: var(--background);
     }
 }
 
@@ -81,7 +84,8 @@ Please see LICENSE files in the repository root for full details.
     flex-direction: column;
     flex: 1;
     min-width: 0;
-
+    background-color: var(--background);
+    border-radius: 16px;
     .mx_RoomView_messagePanel,
     .mx_RoomView_messagePanelSpinner,
     .mx_RoomView_messagePanelSearchSpinner {

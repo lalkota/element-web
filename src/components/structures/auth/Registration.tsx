@@ -774,7 +774,11 @@ export default class Registration extends React.Component<IProps, IState> {
             <AuthPage>
                 <AuthHeader />
                 <AuthHeaderProvider>
-                    <AuthBody flex>{body}</AuthBody>
+                    <AuthBody flex>
+                        <div className="mx_AuthBody_paddedHeader">
+                            {body}
+                        </div>
+                    </AuthBody>
                 </AuthHeaderProvider>
             </AuthPage>
         );

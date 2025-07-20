@@ -233,8 +233,8 @@ Please see LICENSE files in the repository root for full details.
 
         &.mx_SpaceButton_new .mx_SpaceButton_icon {
             &::before {
-                background-color: $primary-content;
-                mask-image: url("@vector-im/compound-design-tokens/icons/plus.svg");
+                background-color: var(--cpd-color-gray-600);
+                mask-image: url("$(res)/img/element-icons/roomlist/plus-circle.svg");
                 transition: all 0.2s ease-in-out; /* TODO transition */
             }
         }
@@ -396,6 +396,7 @@ Please see LICENSE files in the repository root for full details.
         margin: 12px 14px 4px 18px;
         width: min-content;
         max-width: 226px;
+        display: none;
 
         /* Display the container and img here as block elements so they don't take
          * up extra vertical space.
@@ -480,5 +481,80 @@ Please see LICENSE files in the repository root for full details.
     kbd {
         font-family: inherit;
         text-transform: capitalize;
+    }
+}
+
+
+.mx_SpacePanel_app_list {
+    display: flex;
+    flex-direction: column;
+    li {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 4px 0;
+
+        button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            
+            &:hover, &.active {
+                background: linear-gradient(90deg,rgba(255, 255, 255, 1) 0%, rgba(225, 211, 208, 1) 100%);
+                box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+                inner-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .home {
+                background-image: url("$(res)/img/element-icons/roomlist/home.svg");
+                width: 24px;
+                height: 24px;
+                background-size: contain;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+
+            .messages {
+                background-image: url("$(res)/img/element-icons/roomlist/message.svg");
+                width: 24px;
+                height: 24px;
+                background-size: contain;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+
+            .video {
+                background-image: url("$(res)/img/element-icons/roomlist/video.svg");
+                width: 24px;
+                height: 24px;
+                background-size: contain;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+
+            .people {
+                background-image: url("$(res)/img/element-icons/roomlist/people.svg");
+                width: 24px;
+                height: 24px;
+                background-size: contain;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+
+            .calendar {
+                background-image: url("$(res)/img/element-icons/roomlist/calendar.svg");
+                width: 24px;
+                height: 24px;
+                background-size: contain;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+        }
     }
 }

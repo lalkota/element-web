@@ -56,6 +56,69 @@
         <% }
     } %>
 
+    <!-- Custom brand colors override -->
+    <style>
+      @layer compound.custom {
+        /* Light theme colors */
+        .cpd-theme-light {
+          /* Primary brand color */
+          --cpd-color-bg-action-primary-rest: #1772D1 !important;
+          --cpd-color-bg-action-primary-hovered: #1464b8 !important;
+          --cpd-color-bg-action-primary-pressed: #0f5aa3 !important;
+          --cpd-color-text-action-accent: #1772D1 !important;
+          
+          
+          /* Background colors */
+          --cpd-color-gray-600: #F9FAFB !important;
+          --background: #FFFFFF !important;
+          --panels: #F9FAFB !important;
+          --panel-actions: #1A1A1A !important;
+          --roomlist-bg-color: #F9FAFB !important;
+          --border-color: #E5E7EB !important;
+          
+          /* Text colors */
+          --cpd-color-text-primary: #1A1A1A !important;
+          --cpd-color-text-secondary: #424242 !important;
+          
+          /* Button colors */
+          --cpd-color-bg-subtle-primary: #E8F2FD !important;
+          --cpd-color-icon-accent-primary: #1772D1 !important;
+          --cpd-color-text-link: #1772D1 !important;
+          --cpd-color-primary-light: #E8F2FC !important;
+        }
+        
+        /* Dark theme colors */
+        .cpd-theme-dark {
+          /* Primary brand color */
+          --cpd-color-bg-action-primary-rest: #2186F2 !important;
+          --cpd-color-bg-action-primary-hovered: #3A98F3 !important;
+          --cpd-color-bg-action-primary-pressed: #1772D1 !important;
+          --cpd-color-text-action-accent: #2186F2 !important;
+          
+          /* Background colors */
+          --cpd-color-gray-600: #1A1A1A !important;
+          --background: #121212 !important;
+          --panels: #1E1E1E !important;
+          --panel-actions: #1A1A1A !important;
+          
+          /* Text colors */
+          --cpd-color-text-primary: #FFFFFF !important;
+          --cpd-color-text-secondary: #CCCCCC !important;
+          
+          /* Button colors */
+          --cpd-color-bg-subtle-primary: #1A3A5A !important;
+          --cpd-color-icon-accent-primary: #2186F2 !important;
+          --cpd-color-text-link: #2186F2 !important;
+        }
+        
+        /* Common overrides for both themes */
+        :root, [class*="cpd-theme-"] {
+          /* Common variables that should be the same in both themes */
+          --accent-color: var(--cpd-color-bg-action-primary-rest) !important;
+          --primary-color: var(--cpd-color-bg-action-primary-rest) !important;
+        }
+      }
+    </style>
   </head>
   <body style="height: 100%; margin: 0;">
     <noscript>Sorry, Element requires JavaScript to be enabled.</noscript> <!-- TODO: Translate this? -->

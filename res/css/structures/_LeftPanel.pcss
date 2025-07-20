@@ -41,7 +41,7 @@ Please see LICENSE files in the repository root for full details.
     height: 100%; /* ensure space panel is still scrollable with an outer wrapper */
 
     .mx_LeftPanel_wrapper--user {
-        background-color: $roomlist-bg-color;
+        background-color: var(--roomlist-bg-color);
         display: flex;
         overflow: hidden;
         position: relative;
@@ -53,7 +53,7 @@ Please see LICENSE files in the repository root for full details.
 }
 
 .mx_LeftPanel {
-    background-color: $roomlist-bg-color;
+    background-color: var(--roomlist-bg-color);
 
     /* Create a row-based flexbox for the space panel and the room list */
     display: flex;
@@ -65,7 +65,7 @@ Please see LICENSE files in the repository root for full details.
     /* Note: The 'room list' in this context is actually everything that isn't the tag */
     /* panel, such as the menu options, breadcrumbs, filtering, etc */
     .mx_LeftPanel_roomListContainer {
-        background-color: $roomlist-bg-color;
+        background-color: var(--roomlist-bg-color);
         flex: 1 0 0;
         min-width: 0;
         /* Create another flexbox (this time a column) for the room list components */
@@ -116,7 +116,7 @@ Please see LICENSE files in the repository root for full details.
             flex-shrink: 0; /* to convince safari's layout engine the flexbox is fine */
 
             /* Create a flexbox to organize the inputs */
-            display: flex;
+            display: none;
             align-items: center;
 
             & + .mx_LegacyRoomListHeader {

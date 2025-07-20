@@ -1163,7 +1163,8 @@ export class UnwrappedEventTile extends React.Component<EventTileProps, IState> 
                 aria-label={formatTime(new Date(this.props.mxEvent.getTs()), this.props.isTwelveHour)}
                 onContextMenu={this.onTimestampContextMenu}
             >
-                {timestamp}
+                {/* {timestamp} */}
+                {messageTimestamp}
             </a>
         ) : null;
 
@@ -1430,7 +1431,6 @@ export class UnwrappedEventTile extends React.Component<EventTileProps, IState> 
                         {avatar}
                         <div className={lineClasses} key="mx_EventTile_line" onContextMenu={this.onContextMenu}>
                             {this.renderContextMenu()}
-                            {groupTimestamp}
                             {groupPadlock}
                             {replyChain}
                             {renderTile(
@@ -1463,6 +1463,14 @@ export class UnwrappedEventTile extends React.Component<EventTileProps, IState> 
                                 </>
                             )}
                         </div>
+                        <div className="mx_EventTile_footer">
+                            {(this.props.layout === Layout.Group || !isOwnEvent) && pinnedMessageBadge}
+                            {reactionsRow}
+                            {this.props.layout === Layout.Bubble && isOwnEvent && pinnedMessageBadge}
+                            {groupTimestamp}
+                            {this.renderThreadInfo()}
+                        </div>
+{/*                         
                         {this.props.layout !== Layout.IRC && (
                             <>
                                 {hasFooter && (
@@ -1474,7 +1482,7 @@ export class UnwrappedEventTile extends React.Component<EventTileProps, IState> 
                                 )}
                                 {this.renderThreadInfo()}
                             </>
-                        )}
+                        )} */}
                         {msgOption}
                     </>,
                 );

@@ -8,13 +8,27 @@ Please see LICENSE files in the repository root for full details.
 */
 
 .mx_AuthBody {
-    width: 500px;
-    font-size: $font-12px;
+    width: 50%;
+    font-size: $font-16px;
     color: $authpage-secondary-color;
     background-color: $background;
     border-radius: 0 4px 4px 0;
     padding: 25px 60px;
     box-sizing: border-box;
+
+    .mx_AuthBody_paddedHeader {
+        max-width: 360px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 100%;
+    }
+
+    .mx_AuthPage_logo {
+        max-width: 225px;
+        margin: 0 auto 64px;
+    }
 
     strong {
         font-weight: var(--cpd-font-weight-semibold);
@@ -71,6 +85,8 @@ Please see LICENSE files in the repository root for full details.
     input[type="text"],
     input[type="password"] {
         color: $authpage-primary-color;
+        background-color: $background;
+        border: 1px solid var(--cpd-color-border-interactive-secondary);
     }
 
     .mx_Field label {
@@ -97,7 +113,6 @@ Please see LICENSE files in the repository root for full details.
     }
 
     .mx_Login_submit {
-        height: 32px;
         margin-top: $spacing-16;
     }
 
