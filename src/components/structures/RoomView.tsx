@@ -74,6 +74,8 @@ import RoomPreviewCard from "../views/rooms/RoomPreviewCard";
 import RoomUpgradeWarningBar from "../views/rooms/RoomUpgradeWarningBar";
 import AuxPanel from "../views/rooms/AuxPanel";
 import RoomHeader from "../views/rooms/RoomHeader/RoomHeader";
+import { RoomTabProvider } from "../../contexts/RoomTabContext";
+import RoomContent from "./RoomContent";
 import { type IOOBData, type IThreepidInvite } from "../../stores/ThreepidInviteStore";
 import EffectsOverlay from "../views/elements/EffectsOverlay";
 import { containsEmoji } from "../../effects/utils";
@@ -2566,10 +2568,17 @@ export class RoomView extends React.Component<IRoomProps, IRoomState> {
                         {pinnedMessageBanner}
                         <main className={timelineClasses}>
                             <FileDropTarget parent={this.roomView.current} onFileDrop={this.onFileDrop} />
-                            {topUnreadMessagesBar}
-                            {jumpToBottom}
-                            {messagePanel}
-                            {searchResultsPanel}
+                            <RoomContent
+                                room={this.state.room!}
+                                chatContent={
+                                    <>
+                                        {topUnreadMessagesBar}
+                                        {jumpToBottom}
+                                        {messagePanel}
+                                        {searchResultsPanel}
+                                    </>
+                                }
+                            />
                         </main>
                         {statusBarArea}
                         {previewBar}
@@ -2623,33 +2632,35 @@ export class RoomView extends React.Component<IRoomProps, IRoomState> {
 
         return (
             <ScopedRoomContextProvider {...this.state}>
-                <div className={mainClasses} ref={this.roomView} onKeyDown={this.onReactKeyDown}>
-                    {showChatEffects && this.roomView.current && (
-                        <EffectsOverlay roomWidth={this.roomView.current.offsetWidth} />
-                    )}
-                    <ErrorBoundary>
-                        <MainSplit
-                            panel={rightPanel}
-                            resizeNotifier={this.props.resizeNotifier}
-                            sizeKey={sizeKey}
-                            defaultSize={defaultSize}
-                            analyticsRoomType={analyticsRoomType}
-                        >
-                            <div
-                                className={mainSplitContentClasses}
-                                ref={this.roomViewBody}
-                                data-layout={this.state.layout}
-                                data-is-direct={this.state.room && DMRoomMap.shared().getUserIdForRoomId(this.state.room.roomId) ? "true" : "false"}
+                <RoomTabProvider>
+                    <div className={mainClasses} ref={this.roomView} onKeyDown={this.onReactKeyDown}>
+                        {showChatEffects && this.roomView.current && (
+                            <EffectsOverlay roomWidth={this.roomView.current.offsetWidth} />
+                        )}
+                        <ErrorBoundary>
+                            <MainSplit
+                                panel={rightPanel}
+                                resizeNotifier={this.props.resizeNotifier}
+                                sizeKey={sizeKey}
+                                defaultSize={defaultSize}
+                                analyticsRoomType={analyticsRoomType}
                             >
-                                <RoomHeader
-                                    room={this.state.room}
-                                    additionalButtons={this.state.viewRoomOpts.buttons}
-                                />
-                                {mainSplitBody}
-                            </div>
-                        </MainSplit>
-                    </ErrorBoundary>
-                </div>
+                                <div
+                                    className={mainSplitContentClasses}
+                                    ref={this.roomViewBody}
+                                    data-layout={this.state.layout}
+                                    data-is-direct={this.state.room && DMRoomMap.shared().getUserIdForRoomId(this.state.room.roomId) ? "true" : "false"}
+                                >
+                                    <RoomHeader
+                                        room={this.state.room}
+                                        additionalButtons={this.state.viewRoomOpts.buttons}
+                                    />
+                                    {mainSplitBody}
+                                </div>
+                            </MainSplit>
+                        </ErrorBoundary>
+                    </div>
+                </RoomTabProvider>
             </ScopedRoomContextProvider>
         );
     }

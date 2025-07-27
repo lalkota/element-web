@@ -1,0 +1,120 @@
+/*
+Copyright 2024 New Vector Ltd.
+
+SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Commercial
+Please see LICENSE files in the repository root for full details.
+*/
+
+.mx_RoomFilesView {
+    padding: 16px;
+    height: 100%;
+    overflow-y: auto;
+    
+    &--loading,
+    &--empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-align: center;
+        gap: 8px;
+    }
+}
+
+.mx_RoomFilesView_header {
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--cpd-color-border-interactive-secondary);
+}
+
+.mx_RoomFilesView_list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mx_RoomFilesView_item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background-color: var(--cpd-color-bg-canvas-default);
+    border: 1px solid var(--cpd-color-border-interactive-secondary);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        border-color: var(--cpd-color-border-interactive-primary);
+        background-color: var(--cpd-color-bg-subtle-secondary);
+    }
+}
+
+.mx_RoomFilesView_fileIcon {
+    font-size: 24px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--cpd-color-bg-subtle-secondary);
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.mx_RoomFilesView_fileInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.mx_RoomFilesView_filename {
+    color: var(--cpd-color-text-primary);
+    margin-bottom: 4px;
+    word-break: break-all;
+}
+
+.mx_RoomFilesView_metadata {
+    color: var(--cpd-color-text-secondary);
+    word-break: break-all;
+}
+
+.mx_RoomFilesView_emptyTitle {
+    color: var(--cpd-color-text-primary);
+    margin-bottom: 8px;
+}
+
+.mx_RoomFilesView_emptyDescription {
+    color: var(--cpd-color-text-secondary);
+    max-width: 300px;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+    .mx_RoomFilesView {
+        padding: 12px;
+    }
+    
+    .mx_RoomFilesView_item {
+        padding: 10px;
+        gap: 10px;
+    }
+    
+    .mx_RoomFilesView_fileIcon {
+        font-size: 20px;
+        width: 28px;
+        height: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .mx_RoomFilesView_item {
+        padding: 8px;
+        gap: 8px;
+    }
+    
+    .mx_RoomFilesView_fileIcon {
+        font-size: 18px;
+        width: 24px;
+        height: 24px;
+    }
+}

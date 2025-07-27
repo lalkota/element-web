@@ -48,6 +48,7 @@ import { aboveRightOf } from "../../structures/ContextMenu";
 import { objectHasDiff } from "../../../utils/objects";
 import type EditorStateTransfer from "../../../utils/EditorStateTransfer";
 import { type RoomPermalinkCreator } from "../../../utils/permalinks/Permalinks";
+import DMRoomMap from "../../../utils/DMRoomMap";
 import { StaticNotificationState } from "../../../stores/notifications/StaticNotificationState";
 import NotificationBadge from "./NotificationBadge";
 import type LegacyCallEventGrouper from "../../structures/LegacyCallEventGrouper";
@@ -1210,6 +1211,30 @@ export class UnwrappedEventTile extends React.Component<EventTileProps, IState> 
             );
         }
 
+        // Modify sender to include timestamp for non-DM rooms
+        if (sender && needsSenderProfile && this.props.hideSender !== true) {
+            const roomId = this.props.mxEvent.getRoomId();
+            const isDirectMessage = roomId ? DMRoomMap.shared().getUserIdForRoomId(roomId) : false;
+            
+            if (
+                !isDirectMessage &&
+                this.props.layout !== Layout.IRC &&
+                (
+                    this.context.timelineRenderingType === TimelineRenderingType.Room ||
+                    this.context.timelineRenderingType === TimelineRenderingType.Search ||
+                    this.context.timelineRenderingType === TimelineRenderingType.Pinned ||
+                    this.context.timelineRenderingType === TimelineRenderingType.Thread
+                )
+            ) {
+                sender = (
+                    <div className="mx_EventTile_senderDetailsWithTimestamp">
+                        {sender}
+                        {messageTimestamp}
+                    </div>
+                );
+            }
+        }
+
         // Use `getSender()` because searched events might not have a proper `sender`.
         const isOwnEvent = this.props.mxEvent?.getSender() === MatrixClientPeg.safeGet().getUserId();
 
@@ -1467,7 +1492,21 @@ export class UnwrappedEventTile extends React.Component<EventTileProps, IState> 
                             {(this.props.layout === Layout.Group || !isOwnEvent) && pinnedMessageBadge}
                             {reactionsRow}
                             {this.props.layout === Layout.Bubble && isOwnEvent && pinnedMessageBadge}
-                            {groupTimestamp}
+                            {(() => {
+                                const roomId = this.props.mxEvent.getRoomId();
+                                const isDirectMessage = roomId ? DMRoomMap.shared().getUserIdForRoomId(roomId) : false;
+                                const showTimestampWithSender = !isDirectMessage && 
+                                    this.props.layout !== Layout.IRC &&
+                                    needsSenderProfile &&
+                                    this.props.hideSender !== true &&
+                                    (
+                                        this.context.timelineRenderingType === TimelineRenderingType.Room ||
+                                        this.context.timelineRenderingType === TimelineRenderingType.Search ||
+                                        this.context.timelineRenderingType === TimelineRenderingType.Pinned ||
+                                        this.context.timelineRenderingType === TimelineRenderingType.Thread
+                                    );
+                                return showTimestampWithSender ? null : groupTimestamp;
+                            })()}
                             {this.renderThreadInfo()}
                         </div>
 {/*                         

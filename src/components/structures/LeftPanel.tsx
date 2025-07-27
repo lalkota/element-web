@@ -37,7 +37,8 @@ import PosthogTrackers from "../../PosthogTrackers";
 import type PageType from "../../PageTypes";
 import { Landmark, LandmarkNavigation } from "../../accessibility/LandmarkNavigation";
 import SettingsStore from "../../settings/SettingsStore";
-import { RoomListPanel } from "../views/rooms/RoomListPanel";
+import { MentionsAndThreads, RoomListPanel } from "../views/rooms/RoomListPanel";
+import PlusButton from "./PlusButton";
 
 interface IProps {
     isMinimized: boolean;
@@ -427,9 +428,11 @@ export default class LeftPanel extends React.Component<IProps, IState> {
                             // overflow:scroll;, so force it out of tab order.
                             tabIndex={-1}
                         >
+                            <MentionsAndThreads />
                             {roomList}
                         </div>
                     </nav>
+                    <PlusButton activeSpace={SpaceStore.instance.activeSpaceRoom} />
                 </div>
             </div>
         );

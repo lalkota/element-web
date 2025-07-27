@@ -38,6 +38,7 @@ import RegistrationForm from "../../views/auth/RegistrationForm";
 import AccessibleButton, { type ButtonEvent } from "../../views/elements/AccessibleButton";
 import AuthBody from "../../views/auth/AuthBody";
 import AuthHeader from "../../views/auth/AuthHeader";
+import { AuthPageType } from "../../views/auth/AuthHeaderLogo";
 import InteractiveAuth, { type InteractiveAuthCallback } from "../InteractiveAuth";
 import Spinner from "../../views/elements/Spinner";
 import { AuthHeaderDisplay } from "./header/AuthHeaderDisplay";
@@ -772,7 +773,7 @@ export default class Registration extends React.Component<IProps, IState> {
         }
         return (
             <AuthPage>
-                <AuthHeader />
+                <AuthHeader pageType={AuthPageType.Register} />
                 <AuthHeaderProvider>
                     <AuthBody flex>
                         <div className="mx_AuthBody_paddedHeader">

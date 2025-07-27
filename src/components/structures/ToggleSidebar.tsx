@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Com
 Please see LICENSE files in the repository root for full details.
 */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, type JSX } from "react";
 import classNames from "classnames";
 import { _t } from "../../languageHandler";
 import AccessibleButton from "../views/elements/AccessibleButton";
@@ -13,8 +13,20 @@ import dis from "../../dispatcher/dispatcher";
 import { Action } from "../../dispatcher/actions";
 import RoomListStore, { LISTS_UPDATE_EVENT } from "../../stores/room-list/RoomListStore";
 import { DefaultTagID } from "../../stores/room-list/models";
-import { Room } from "matrix-js-sdk/src/matrix";
+import { Room, UserEvent } from "matrix-js-sdk/src/matrix";
 import RoomAvatar from "../views/avatars/RoomAvatar";
+import { UserTab } from "../views/dialogs/UserTab";
+import { type OpenToTabPayload } from "../../dispatcher/payloads/OpenToTabPayload";
+import SettingsStore from "../../settings/SettingsStore";
+import { SettingLevel } from "../../settings/SettingLevel";
+import { findHighContrastTheme, isHighContrastTheme } from "../../theme";
+import { MatrixClientPeg } from "../../MatrixClientPeg";
+import { OwnProfileStore } from "../../stores/OwnProfileStore";
+import { UPDATE_EVENT } from "../../stores/AsyncStore";
+import BaseAvatar from "../views/avatars/BaseAvatar";
+import UserIdentifierCustomisations from "../../customisations/UserIdentifier";
+import WithPresenceIndicator from "../views/avatars/WithPresenceIndicator";
+
 
 interface IProps {
     isCollapsed: boolean;
@@ -43,10 +55,40 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
     const [sectionsCollapsed, setSectionsCollapsed] = useState<Record<string, boolean>>({});
     const [rooms, setRooms] = useState<Room[]>([]);
     const [directMessages, setDirectMessages] = useState<Room[]>([]);
-    const [currentTheme, setCurrentTheme] = useState<string>("light");
+    const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("light");
+    const [userDisplayName, setUserDisplayName] = useState<string>("");
+    const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
+    const [userId, setUserId] = useState<string>("");
+    const [userPresence, setUserPresence] = useState<string>("offline");
 
     const handleToggle = (): void => {
         onToggle(!isCollapsed);
+    };
+
+    const onSettingsClick = (): void => {
+        const payload: OpenToTabPayload = { action: Action.ViewUserSettings, initialTabId: undefined };
+        dis.dispatch(payload);
+    };
+
+    const onNotificationsClick = (): void => {
+        const payload: OpenToTabPayload = { action: Action.ViewUserSettings, initialTabId: UserTab.Notifications };
+        dis.dispatch(payload);
+    };
+
+    const onThemeToggleClick = (theme: "light" | "dark"): void => {
+        // Disable system theme matching if the user hits this button
+        SettingsStore.setValue("use_system_theme", null, SettingLevel.DEVICE, false);
+
+        let newTheme: string = theme;
+        // Check if user is on high contrast and maintain it
+        if (isHighContrastTheme(SettingsStore.getValue("theme"))) {
+            const hcTheme = findHighContrastTheme(newTheme);
+            if (hcTheme) {
+                newTheme = hcTheme;
+            }
+        }
+        SettingsStore.setValue("theme", null, SettingLevel.DEVICE, newTheme);
+        setCurrentTheme(theme);
     };
 
     const toggleSection = (sectionId: string): void => {
@@ -83,6 +125,78 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
 
         return () => {
             RoomListStore.instance.off(LISTS_UPDATE_EVENT, updateRooms);
+        };
+    }, []);
+
+    // Sync theme state with actual theme setting
+    useEffect(() => {
+        const updateTheme = () => {
+            const theme = SettingsStore.getValue("theme");
+            // Extract base theme (light/dark) from potential high contrast themes
+            if (theme.includes("dark")) {
+                setCurrentTheme("dark");
+            } else {
+                setCurrentTheme("light");
+            }
+        };
+
+        // Initial sync
+        updateTheme();
+
+        // Listen for theme changes
+        const watcherRef = SettingsStore.watchSetting("theme", null, updateTheme);
+
+        return () => {
+            if (watcherRef) {
+                SettingsStore.unwatchSetting(watcherRef);
+            }
+        };
+    }, []);
+
+    // Load and update user profile information
+    useEffect(() => {
+        const updateUserProfile = () => {
+            const client = MatrixClientPeg.safeGet();
+            const currentUserId = client.getSafeUserId();
+            const displayName = OwnProfileStore.instance.displayName || currentUserId;
+            const avatarUrl = OwnProfileStore.instance.getHttpAvatarUrl(32);
+            
+            // Get user presence
+            const user = client.getUser(currentUserId);
+            const presence = user?.presence || "offline";
+            
+            setUserId(currentUserId);
+            setUserDisplayName(displayName);
+            setUserAvatarUrl(avatarUrl);
+            setUserPresence(presence);
+        };
+
+        // Initial load
+        updateUserProfile();
+
+        // Listen for profile updates
+        OwnProfileStore.instance.on(UPDATE_EVENT, updateUserProfile);
+
+        // Listen for presence updates
+        const client = MatrixClientPeg.safeGet();
+        const user = client.getUser(client.getSafeUserId());
+        const onPresenceUpdate = () => {
+            if (user) {
+                setUserPresence(user.presence || "offline");
+            }
+        };
+        
+        if (user) {
+            user.on(UserEvent.Presence, onPresenceUpdate);
+            user.on(UserEvent.CurrentlyActive, onPresenceUpdate);
+        }
+
+        return () => {
+            OwnProfileStore.instance.off(UPDATE_EVENT, updateUserProfile);
+            if (user) {
+                user.off(UserEvent.Presence, onPresenceUpdate);
+                user.off(UserEvent.CurrentlyActive, onPresenceUpdate);
+            }
         };
     }, []);
 
@@ -215,11 +329,13 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
                                     onClick={item.onClick || (() => {})}
                                 >
                                     {item.room ? (
-                                        <RoomAvatar 
-                                            room={item.room} 
-                                            size="24px" 
-                                            className="mx_ToggleSidebar_roomAvatar"
-                                        />
+                                        <WithPresenceIndicator room={item.room} size="8px">
+                                            <RoomAvatar 
+                                                room={item.room} 
+                                                size="32px" 
+                                                className="mx_ToggleSidebar_roomAvatar"
+                                            />
+                                        </WithPresenceIndicator>
                                     ) : (
                                         <div className={`mx_ToggleSidebar_sectionIcon mx_ToggleSidebar_sectionIcon--${item.icon}`} />
                                     )}
@@ -256,19 +372,38 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
             </div>
 
             <div className="mx_ToggleSidebar_footer">
-                <div className="mx_ToggleSidebar_notifications">
+                <AccessibleButton 
+                    className="mx_ToggleSidebar_notifications"
+                    onClick={onNotificationsClick}
+                    title="Open Notifications Settings"
+                >
                     <div className="mx_ToggleSidebar_notificationIcon" />
                     <span className="mx_ToggleSidebar_notificationLabel">Notifications</span>
-                </div>
-                <div className="mx_ToggleSidebar_settings">
+                </AccessibleButton>
+                <AccessibleButton 
+                    className="mx_ToggleSidebar_settings"
+                    onClick={onSettingsClick}
+                    title="Open Settings"
+                >
                     <div className="mx_ToggleSidebar_settingsIcon" />
                     <span className="mx_ToggleSidebar_settingsLabel">Settings</span>
-                </div>
+                </AccessibleButton>
                 <div className="mx_ToggleSidebar_user">
-                    <div className="mx_ToggleSidebar_userAvatar" />
+                    <div className="mx_ToggleSidebar_userAvatarContainer">
+                        <BaseAvatar
+                            idName={userId}
+                            name={userDisplayName}
+                            url={userAvatarUrl}
+                            size="32px"
+                            className="mx_ToggleSidebar_userAvatar"
+                        />
+                        <div className={`mx_ToggleSidebar_presenceIndicator mx_ToggleSidebar_presenceIndicator--${userPresence}`} />
+                    </div>
                     <div className="mx_ToggleSidebar_userInfo">
-                        <span className="mx_ToggleSidebar_userName">Yousef Qamar</span>
-                        <span className="mx_ToggleSidebar_userEmail">yousef.qamar@cyberx.com</span>
+                        <span className="mx_ToggleSidebar_userName">{userDisplayName}</span>
+                        <span className="mx_ToggleSidebar_userEmail">
+                            {UserIdentifierCustomisations.getDisplayUserIdentifier(userId, { withDisplayName: false }) || userId}
+                        </span>
                     </div>
                 </div>
                 <div className="mx_ToggleSidebar_themeToggle">
@@ -276,7 +411,7 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
                         className={classNames("mx_ToggleSidebar_themeButton", {
                             "mx_ToggleSidebar_themeButton--active": currentTheme === "light"
                         })}
-                        onClick={() => setCurrentTheme("light")}
+                        onClick={() => onThemeToggleClick("light")}
                     >
                         <div className="mx_ToggleSidebar_themeIcon mx_ToggleSidebar_themeIcon--light" />
                         <span className="mx_ToggleSidebar_themeLabel">Light</span>
@@ -285,7 +420,7 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
                         className={classNames("mx_ToggleSidebar_themeButton", {
                             "mx_ToggleSidebar_themeButton--active": currentTheme === "dark"
                         })}
-                        onClick={() => setCurrentTheme("dark")}
+                        onClick={() => onThemeToggleClick("dark")}
                     >
                         <div className="mx_ToggleSidebar_themeIcon mx_ToggleSidebar_themeIcon--dark" />
                         <span className="mx_ToggleSidebar_themeLabel">Dark</span>

@@ -8,18 +8,19 @@ Please see LICENSE files in the repository root for full details.
 
 import React from "react";
 
-import AuthHeaderLogo from "./AuthHeaderLogo";
+import AuthHeaderLogo, { AuthPageType } from "./AuthHeaderLogo";
 import LanguageSelector from "./LanguageSelector";
 
 interface IProps {
     disableLanguageSelector?: boolean;
+    pageType?: AuthPageType;
 }
 
 export default class AuthHeader extends React.Component<IProps> {
     public render(): React.ReactNode {
         return (
             <div className="mx_AuthHeader">
-                <AuthHeaderLogo />
+                <AuthHeaderLogo pageType={this.props.pageType} />
                 {/* <LanguageSelector disabled={this.props.disableLanguageSelector} /> */}
             </div>
         );

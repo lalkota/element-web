@@ -96,6 +96,7 @@ import VerificationRequestToast from "../views/toasts/VerificationRequestToast";
 import PerformanceMonitor, { PerformanceEntryNames } from "../../performance";
 import UIStore, { UI_EVENTS } from "../../stores/UIStore";
 import SoftLogout from "./auth/SoftLogout";
+import MentionsView from "./MentionsView";
 import { copyPlaintext } from "../../utils/strings";
 import { PosthogAnalytics } from "../../PosthogAnalytics";
 import { initSentry } from "../../sentry";
@@ -1828,6 +1829,10 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             });
         } else if (screen === "directory") {
             dis.fire(Action.ViewRoomDirectory);
+        } else if (screen === "mentions") {
+            this.setState({
+                view: Views.MENTIONS,
+            });
         } else if (screen === "start_sso" || screen === "start_cas") {
             let cli = MatrixClientPeg.get();
             if (!cli) {

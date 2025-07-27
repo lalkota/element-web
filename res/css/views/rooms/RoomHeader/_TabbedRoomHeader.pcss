@@ -1,0 +1,81 @@
+/*
+Copyright 2024 New Vector Ltd.
+
+SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Commercial
+Please see LICENSE files in the repository root for full details.
+*/
+
+.mx_TabbedRoomHeader {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.mx_TabbedRoomHeader_tabs {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    min-height: 48px;
+}
+
+.mx_TabbedRoomHeader_tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background-color: var(--roomlist-bg-color);
+    border-right: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--cpd-color-text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+
+    &:first-child {
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
+    }
+    
+    &:last-child {
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+        border-right: none;
+    }
+
+    &:hover {
+        background-color:rgba(23, 114, 209, 0.1); 
+        color: var(--cpd-color-bg-action-primary-rest);
+    }
+    
+    &--active {
+        background-color: rgba(23, 114, 209, 0.1);
+        color: var(--cpd-color-text-action-accent);
+
+        svg {
+            fill: var(--cpd-color-bg-action-primary-rest);
+        }
+        
+        &:hover {
+            background-color: rgba(23, 114, 209, 0.1);
+        }
+    }
+}
+
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+    .mx_TabbedRoomHeader_tabs {
+        padding: 0 12px;
+        gap: 2px;
+    }
+    
+    .mx_TabbedRoomHeader_tab {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    .mx_TabbedRoomHeader_tabIcon {
+        width: 18px;
+        height: 18px;
+    }
+}

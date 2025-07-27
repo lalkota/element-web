@@ -9,9 +9,11 @@ Please see LICENSE files in the repository root for full details.
 import React, { type JSX, useCallback, useMemo, useState } from "react";
 import { Body as BodyText, Button, IconButton, Menu, MenuItem, Tooltip } from "@vector-im/compound-web";
 import VideoCallIcon from "@vector-im/compound-design-tokens/assets/web/icons/video-call-solid";
-import VoiceCallIcon from "@vector-im/compound-design-tokens/assets/web/icons/voice-call-solid";
 import CallIcon from "../../../../../res/img/element-icons/room/composer/call.svg";
 import VideoIcon from "../../../../../res/img/element-icons/room/composer/video.svg";
+import ChatIcon from "./icons/ChatIcon";
+import ImageIcon from "./icons/ImageIcon";
+import AttachmentIcon from "./icons/AttachmentIcon";
 
 import CloseCallIcon from "@vector-im/compound-design-tokens/assets/web/icons/close";
 import ThreadsIcon from "@vector-im/compound-design-tokens/assets/web/icons/threads-solid";
@@ -48,6 +50,10 @@ import { RoomKnocksBar } from "../RoomKnocksBar.tsx";
 import { isVideoRoom as calcIsVideoRoom } from "../../../../utils/video-rooms.ts";
 import { notificationLevelToIndicator } from "../../../../utils/notifications.ts";
 import { CallGuestLinkButton } from "./CallGuestLinkButton.tsx";
+import RoomImagesView from "../RoomImagesView";
+import RoomFilesView from "../RoomFilesView";
+import AccessibleButton from "../../elements/AccessibleButton";
+import classNames from "classnames";
 import { type ButtonEvent } from "../../elements/AccessibleButton.tsx";
 import WithPresenceIndicator, { useDmMember } from "../../avatars/WithPresenceIndicator.tsx";
 import { type IOOBData } from "../../../../stores/ThreepidInviteStore.ts";
@@ -57,6 +63,8 @@ import { RoomSettingsTab } from "../../dialogs/RoomSettingsDialog.tsx";
 import { useScopedRoomContext } from "../../../../contexts/ScopedRoomContext.tsx";
 import { ToggleableIcon } from "./toggle/ToggleableIcon.tsx";
 import { CurrentRightPanelPhaseContextProvider } from "../../../../contexts/CurrentRightPanelPhaseContext.tsx";
+import { useRoomTab, RoomContentTab } from "../../../../contexts/RoomTabContext";
+import GroupIcon from "@vector-im/compound-design-tokens/assets/web/icons/group";
 
 export default function RoomHeader({
     room,
@@ -68,6 +76,7 @@ export default function RoomHeader({
     oobData?: IOOBData;
 }): JSX.Element {
     const client = useMatrixClientContext();
+    const { activeTab, setActiveTab } = useRoomTab();
 
     const roomName = useRoomName(room);
     const joinRule = useRoomState(room, (state) => state.getJoinRule());
@@ -166,12 +175,13 @@ export default function RoomHeader({
                     onOpenChange={onOpenChange}
                     title={_t("voip|video_call_using")}
                     trigger={
-                        <IconButton
+                        <button
                             disabled={!!videoCallDisabledReason}
                             aria-label={videoCallDisabledReason ?? _t("voip|video_call")}
+                            className="mx_RoomHeader_action_button"
                         >
                             {callIconWithTooltip}
-                        </IconButton>
+                        </button>
                     }
                     side="left"
                     align="start"
@@ -196,36 +206,38 @@ export default function RoomHeader({
                     })}
                 </Menu>
             ) : (
-                <IconButton
+                <button
                     disabled={!!videoCallDisabledReason}
                     aria-label={videoCallDisabledReason ?? _t("voip|video_call")}
                     onClick={videoClick}
+                    className="mx_RoomHeader_action_button"
                 >
                     {callIconWithTooltip}
-                </IconButton>
+                </button>
             )}
         </>
     );
     let voiceCallButton: JSX.Element | undefined = (
         <Tooltip label={voiceCallDisabledReason ?? _t("voip|voice_call")}>
-            <IconButton
+            <button
                 // We need both: isViewingCall and isConnectedToCall
                 //  - in the Lobby we are viewing a call but are not connected to it.
                 //  - in pip view we are connected to the call but not viewing it.
                 disabled={!!voiceCallDisabledReason || isViewingCall || isConnectedToCall}
                 aria-label={voiceCallDisabledReason ?? _t("voip|voice_call")}
                 onClick={(ev) => voiceCallClick(ev, callOptions[0])}
+                className="mx_RoomHeader_action_button"
             >
                 {/* <VoiceCallIcon /> */}
                 <img src={CallIcon} alt="Voice Call" />
-            </IconButton>
+            </button>
         </Tooltip>
     );
     const closeLobbyButton = (
         <Tooltip label={_t("voip|close_lobby")}>
-            <IconButton onClick={toggleCall}>
+            <button onClick={toggleCall} className="mx_RoomHeader_action_button">
                 <CloseCallIcon />
-            </IconButton>
+            </button>
         </Tooltip>
     );
     let videoCallButton: JSX.Element | undefined = startVideoCallButton;
@@ -271,6 +283,7 @@ export default function RoomHeader({
                             aria-label={_t("room|header_avatar_open_settings_label")}
                         />
                     </WithPresenceIndicator>
+
                     <button
                         aria-label={_t("right_panel|room_summary_card|title")}
                         tabIndex={0}
@@ -343,6 +356,40 @@ export default function RoomHeader({
                         );
                     })}
 
+                    {/* Tab Navigation */}
+                    <div className="mx_TabbedRoomHeader_tabs">
+                        <AccessibleButton
+                            className={classNames("mx_TabbedRoomHeader_tab", {
+                                "mx_TabbedRoomHeader_tab--active": activeTab === RoomContentTab.Chat,
+                            })}
+                            onClick={() => setActiveTab(RoomContentTab.Chat)}
+                            aria-label="Chat"
+                        >
+                            <ChatIcon width="16" height="16" className="mx_TabbedRoomHeader_tab_icon" />
+                            Chat
+                        </AccessibleButton>
+                        <AccessibleButton
+                            className={classNames("mx_TabbedRoomHeader_tab", {
+                                "mx_TabbedRoomHeader_tab--active": activeTab === RoomContentTab.Images,
+                            })}
+                            onClick={() => setActiveTab(RoomContentTab.Images)}
+                            aria-label="Images"
+                        >
+                            <ImageIcon width="16" height="16" className="mx_TabbedRoomHeader_tab_icon" />
+                            Images
+                        </AccessibleButton>
+                        <AccessibleButton
+                            className={classNames("mx_TabbedRoomHeader_tab", {
+                                "mx_TabbedRoomHeader_tab--active": activeTab === RoomContentTab.Files,
+                            })}
+                            onClick={() => setActiveTab(RoomContentTab.Files)}
+                            aria-label="Files"
+                        >
+                            <AttachmentIcon width="16" height="16" className="mx_TabbedRoomHeader_tab_icon" />
+                            Files
+                        </AccessibleButton>
+                    </div>
+
                     {isViewingCall && <CallGuestLinkButton room={room} />}
 
                     {hasActiveCallSession && !isConnectedToCall && !isViewingCall ? (
@@ -356,7 +403,9 @@ export default function RoomHeader({
 
                     {showChatButton && <VideoRoomChatButton room={room} />}
 
-                    <Tooltip label={_t("common|threads")}>
+                    
+
+                    {/* <Tooltip label={_t("common|threads")}>
                         <IconButton
                             indicator={notificationLevelToIndicator(threadNotifications)}
                             onClick={(evt) => {
@@ -368,7 +417,7 @@ export default function RoomHeader({
                         >
                             <ToggleableIcon Icon={ThreadsIcon} phase={RightPanelPhases.ThreadPanel} />
                         </IconButton>
-                    </Tooltip>
+                    </Tooltip> */}
                     {notificationsEnabled && (
                         <Tooltip label={_t("notifications|enable_prompt_toast_title")}>
                             <IconButton
@@ -384,7 +433,7 @@ export default function RoomHeader({
                         </Tooltip>
                     )}
 
-                    <Tooltip label={_t("right_panel|room_summary_card|title")}>
+                    {/* <Tooltip label={_t("right_panel|room_summary_card|title")}>
                         <IconButton
                             onClick={(evt) => {
                                 evt.stopPropagation();
@@ -394,11 +443,11 @@ export default function RoomHeader({
                         >
                             <ToggleableIcon Icon={RoomInfoIcon} phase={RightPanelPhases.RoomSummary} />
                         </IconButton>
-                    </Tooltip>
+                    </Tooltip> */}
 
                     {!isDirectMessage && (
-                        <BodyText as="div" size="sm" weight="medium">
-                            <FacePile
+                        <Flex>
+                            {/* <FacePile
                                 className="mx_RoomHeader_members"
                                 members={members.slice(0, 3)}
                                 size="20px"
@@ -412,10 +461,22 @@ export default function RoomHeader({
                                 aria-label={_t("common|n_members", { count: memberCount })}
                             >
                                 {formatCount(memberCount)}
-                            </FacePile>
-                        </BodyText>
+                            </FacePile> */}
+                            <button
+                                className="mx_RoomHeader_action_button"
+                                aria-label={_t("common|n_members", { count: memberCount })}
+                                onClick={(e: ButtonEvent) => {
+                                    RightPanelStore.instance.showOrHidePhase(RightPanelPhases.MemberList);
+                                    e.stopPropagation();
+                                }}>
+                                <GroupIcon />
+                                {formatCount(memberCount)}
+                            </button>
+                        </Flex>
                     )}
+
                 </Flex>
+
                 {askToJoinEnabled && <RoomKnocksBar room={room} />}
             </CurrentRightPanelPhaseContextProvider>
         </>

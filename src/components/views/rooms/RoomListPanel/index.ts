@@ -6,3 +6,4 @@
  */
 
 export { RoomListPanel } from "./RoomListPanel";
+export { MentionsAndThreads } from "./MentionsAndThreads";

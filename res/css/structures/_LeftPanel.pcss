@@ -21,6 +21,9 @@ Please see LICENSE files in the repository root for full details.
 
     /* Contain the amount of layers rendered by constraining what actually needs re-layering via css */
     contain: layout paint;
+    box-shadow: 11px 8px 10px rgba(0, 0, 0, .04);
+    border-radius: 16px;
+    min-width: 300px;
 }
 
 .mx_LeftPanel_wrapper,
@@ -39,7 +42,7 @@ Please see LICENSE files in the repository root for full details.
     flex-direction: row;
     flex: 1;
     height: 100%; /* ensure space panel is still scrollable with an outer wrapper */
-    min-width: 240px;
+    min-width: 300px;
     .mx_LeftPanel_wrapper--user {
         background-color: var(--background);
         display: flex;
@@ -209,6 +212,26 @@ Please see LICENSE files in the repository root for full details.
         .mx_LeftPanel_actualRoomListContainer {
             position: relative; /* for sticky headers */
             height: 100%; /* ensure scrolling still works */
+            display: flex;
+            flex-direction: column;
+            
+            .mx_PlusButton {
+                margin: 12px;
+                margin-top: auto; /* Push to bottom */
+            }
+        }
+    }
+
+    .mx_LeftPanel_headerContainer {
+        display: flex;
+        align-items: center;
+        position: relative;
+        
+        .mx_LegacyRoomListHeader_plusButton {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
         }
     }
 

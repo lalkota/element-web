@@ -321,6 +321,7 @@ legend {
 
 .mx_Dialog_border {
     z-index: var(--dialog-zIndex-standard);
+    background: var(--background) !important;
     position: relative;
     width: 100%;
     max-width: fit-content;
@@ -337,7 +338,7 @@ legend {
 }
 
 .mx_Dialog {
-    background-color: $background;
+    background-color: var(--background);
     color: $light-fg-color;
     font-size: $font-15px;
     position: relative;

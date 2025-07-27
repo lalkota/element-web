@@ -13,6 +13,8 @@ import classNames from "classnames";
 import { _t } from "../../../languageHandler";
 import { getUserNameColorClass } from "../../../utils/FormattingUtils";
 import UserIdentifier from "../../../customisations/UserIdentifier";
+import { MatrixClientPeg } from "../../../MatrixClientPeg";
+import DMRoomMap from "../../../utils/DMRoomMap";
 
 interface MemberInfo {
     userId: string;
@@ -35,6 +37,9 @@ export default class DisambiguatedProfile extends React.Component<IProps> {
         const { fallbackName, member, colored, emphasizeDisplayName, withTooltip, onClick } = this.props;
         const rawDisplayName = member?.rawDisplayName || fallbackName;
         const mxid = member?.userId;
+
+        // Check if this is a direct message room
+        const isDirectMessage = member?.roomId ? DMRoomMap.shared().getUserIdForRoomId(member.roomId) : false;
 
         let colorClass: string | undefined;
         if (colored) {
@@ -65,9 +70,12 @@ export default class DisambiguatedProfile extends React.Component<IProps> {
 
         return (
             <div className="mx_DisambiguatedProfile" title={withTooltip ? title : undefined} onClick={onClick}>
-                {/* <span className={displayNameClasses} dir="auto">
-                    {rawDisplayName}
-                </span> */}
+                {/* Only show display name in rooms, not in direct messages */}
+                {!isDirectMessage && (
+                    <span className={displayNameClasses} dir="auto">
+                        {rawDisplayName}
+                    </span>
+                )}
                 {mxidElement}
             </div>
         );

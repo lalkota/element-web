@@ -145,7 +145,7 @@ export const JoinRuleDialog: React.FC<{
             <div className="mx_JoinRuleDialogButtons">
                 <Button
                     kind="tertiary"
-                    className="mx_Dialog_nonDialogButton"
+                    className="mx_RoomHeader_action_button"
                     onClick={() => {
                         if (isUpdating === undefined) onFinished();
                     }}

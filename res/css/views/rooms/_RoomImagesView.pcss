@@ -1,0 +1,129 @@
+/*
+Copyright 2024 New Vector Ltd.
+
+SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Commercial
+Please see LICENSE files in the repository root for full details.
+*/
+
+.mx_RoomImagesView {
+    padding: 16px;
+    height: 100%;
+    overflow-y: auto;
+    
+    &--loading,
+    &--empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-align: center;
+        gap: 8px;
+    }
+}
+
+.mx_RoomImagesView_header {
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--cpd-color-border-interactive-secondary);
+}
+
+.mx_RoomImagesView_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.mx_RoomImagesView_item {
+    background-color: var(--cpd-color-bg-canvas-default);
+    border: 1px solid var(--cpd-color-border-interactive-secondary);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        border-color: var(--cpd-color-border-interactive-primary);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+}
+
+.mx_RoomImagesView_imageContainer {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    background-color: var(--cpd-color-bg-subtle-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mx_RoomImagesView_image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.2s ease;
+    
+    .mx_RoomImagesView_item:hover & {
+        transform: scale(1.05);
+    }
+}
+
+.mx_RoomImagesView_itemInfo {
+    padding: 12px;
+}
+
+.mx_RoomImagesView_filename {
+    color: var(--cpd-color-text-primary);
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.mx_RoomImagesView_metadata {
+    color: var(--cpd-color-text-secondary);
+}
+
+.mx_RoomImagesView_emptyTitle {
+    color: var(--cpd-color-text-primary);
+    margin-bottom: 8px;
+}
+
+.mx_RoomImagesView_emptyDescription {
+    color: var(--cpd-color-text-secondary);
+    max-width: 300px;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+    .mx_RoomImagesView {
+        padding: 12px;
+    }
+    
+    .mx_RoomImagesView_grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+    }
+    
+    .mx_RoomImagesView_imageContainer {
+        height: 120px;
+    }
+    
+    .mx_RoomImagesView_itemInfo {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .mx_RoomImagesView_grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 8px;
+    }
+    
+    .mx_RoomImagesView_imageContainer {
+        height: 100px;
+    }
+}

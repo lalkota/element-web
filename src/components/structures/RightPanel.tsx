@@ -23,6 +23,7 @@ import FilePanel from "./FilePanel";
 import ThreadView from "./ThreadView";
 import ThreadPanel from "./ThreadPanel";
 import NotificationPanel from "./NotificationPanel";
+import MentionsPanel from "./MentionsPanel";
 import type ResizeNotifier from "../../utils/ResizeNotifier";
 import { PinnedMessagesCard } from "../views/right_panel/PinnedMessagesCard";
 import { type RoomPermalinkCreator } from "../../utils/permalinks/Permalinks";
@@ -185,6 +186,10 @@ export default class RightPanel extends React.Component<Props, IState> {
 
             case RightPanelPhases.NotificationPanel:
                 card = <NotificationPanel onClose={this.onClose} />;
+                break;
+
+            case RightPanelPhases.MentionsPanel:
+                card = <MentionsPanel onClose={this.onClose} />;
                 break;
 
             case RightPanelPhases.PinnedMessages:

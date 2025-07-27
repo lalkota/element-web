@@ -1,0 +1,304 @@
+/*
+Copyright 2025 New Vector Ltd.
+
+SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Commercial
+Please see LICENSE files in the repository root for full details.
+*/
+
+.mx_MentionsView {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: $background;
+    width: 100%;
+    max-height: calc(100vh - 95px);
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+
+    .mx_MentionsView_header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 24px 24px 16px;
+        border-bottom: 1px solid $quinary-content;
+        background-color: var(--background);
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+
+    }
+
+    .mx_MentionsView_headerContent {
+        flex: 1;
+
+        h1 {
+            margin: 0;
+            font: var(--cpd-font-heading-md-semibold);
+            font-weight: var(--cpd-font-weight-semibold);
+            color: $primary-content;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    }
+
+    .mx_MentionsView_count {
+        background-color: $accent;
+        color: white;
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 12px;
+        font-weight: 600;
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .mx_MentionsView_closeButton {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 20px;
+        color: $secondary-content;
+        transition: background-color 0.1s ease;
+
+        &:hover {
+            background-color: $quinary-content;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--cpd-color-border-focused);
+            outline-offset: 2px;
+        }
+    }
+
+    .mx_MentionsView_body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 24px;
+    }
+
+    .mx_MentionsView_content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+
+
+
+
+
+
+
+
+    .mx_MentionsView_loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+    }
+
+    .mx_MentionsView_emptyText {
+        font: var(--cpd-font-body-lg-regular);
+        color: $primary-content;
+        margin-bottom: 4px;
+    }
+
+    .mx_MentionsView_emptySubtext {
+        font: var(--cpd-font-body-md-regular);
+        color: $secondary-content;
+    }
+}
+
+.mx_MentionsView_list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-radius: 16px;
+}
+
+.mx_MentionsView_roomSection {
+    border-bottom: 1px solid $quinary-content;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.mx_MentionsView_roomHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 0 12px;
+
+    .mx_MentionsView_roomAvatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .mx_MentionsView_roomName {
+        font: var(--cpd-font-body-md-semibold);
+        font-weight: var(--cpd-font-weight-semibold);
+        color: $primary-content;
+    }
+}
+
+.mx_MessageComposer {
+    background-color: var(--background);
+    padding: 0 16px 16px 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+.mx_MentionsView_messages {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background);
+    padding: 16px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
+
+.mx_MentionsView_message {
+    padding: 12px 20px;
+    border-bottom: 1px solid $quinary-content;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background-color: $system;
+    }
+}
+
+.mx_MentionsView_messageHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.mx_MentionsView_senderInfo {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    flex: 1;
+
+    .mx_MentionsView_senderName {
+        font: var(--cpd-font-body-sm-semibold);
+        font-weight: var(--cpd-font-weight-semibold);
+        color: $primary-content;
+    }
+
+    .mx_MentionsView_timestamp {
+        font: var(--cpd-font-body-sm-regular);
+        color: $tertiary-content;
+    }
+}
+
+
+
+.mx_MentionsView_messageContent {
+    font: var(--cpd-font-body-md-regular);
+    color: $primary-content;
+    margin-bottom: 8px;
+    margin-left: 44px; /* Align with sender info (32px avatar + 12px gap) */
+    line-height: 1.4;
+}
+
+.mx_MentionsView_roomComposer {
+    padding: 16px 20px;
+    border-top: 1px solid $quinary-content;
+    background-color: $system;
+
+    .mx_MessageComposer {
+        background: transparent;
+        border: none;
+        padding: 0;
+
+        .mx_MessageComposer_wrapper {
+            background: $background;
+            border: 1px solid $quaternary-content;
+            border-radius: 20px;
+            padding: 8px 12px;
+            transition: border-color 0.2s ease;
+
+            &:focus-within {
+                border-color: $accent;
+            }
+        }
+
+        .mx_MessageComposer_input {
+            background: transparent;
+            border: none;
+            outline: none;
+            font: var(--cpd-font-body-md-regular);
+            color: $primary-content;
+            
+            &::placeholder {
+                color: $tertiary-content;
+            }
+        }
+
+        .mx_MessageComposer_button {
+            background: transparent;
+            border: none;
+            padding: 4px;
+            border-radius: 4px;
+            color: $secondary-content;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background-color: $quinary-content;
+                color: $primary-content;
+            }
+        }
+
+        .mx_MessageComposer_sendButton {
+            background-color: $accent;
+            color: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                background-color: var(--cpd-color-primary-hover);
+            }
+
+            &:disabled {
+                background-color: $quaternary-content;
+                color: $tertiary-content;
+                cursor: not-allowed;
+            }
+        }
+
+        /* Ensure all MessageComposer buttons are visible */
+        .mx_MessageComposer_actions {
+            display: flex !important;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .mx_MessageComposer_button,
+        .mx_EmojiButton,
+        .mx_UploadButton {
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+    }
+}

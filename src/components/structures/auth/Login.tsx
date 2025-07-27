@@ -27,6 +27,7 @@ import SSOButtons from "../../views/elements/SSOButtons";
 import ServerPicker from "../../views/elements/ServerPicker";
 import AuthBody from "../../views/auth/AuthBody";
 import AuthHeader from "../../views/auth/AuthHeader";
+import { AuthPageType } from "../../views/auth/AuthHeaderLogo";
 import AccessibleButton, { type ButtonEvent } from "../../views/elements/AccessibleButton";
 import { type ValidatedServerConfig } from "../../../utils/ValidatedServerConfig";
 import { filterBoolean } from "../../../utils/arrays";
@@ -534,7 +535,10 @@ export default class LoginComponent extends React.PureComponent<IProps, IState> 
 
         return (
             <AuthPage>
-                <AuthHeader disableLanguageSelector={this.props.isSyncing || this.state.busyLoggingIn} />
+                <AuthHeader 
+                    disableLanguageSelector={this.props.isSyncing || this.state.busyLoggingIn} 
+                    pageType={AuthPageType.Login}
+                />
                 <AuthBody>
                     <div className="mx_AuthBody_paddedHeader">
                         <div className="mx_AuthPage_logo">

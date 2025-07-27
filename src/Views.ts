@@ -37,6 +37,9 @@ enum Views {
     // includes guests users as they too are logged in at the client level.
     LOGGED_IN,
 
+    // showing the mentions view
+    MENTIONS,
+
     // We are logged out (invalid token) but have our local state again. The user
     // should log back in to rehydrate the client.
     SOFT_LOGOUT,

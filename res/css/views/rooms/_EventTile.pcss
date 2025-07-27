@@ -465,6 +465,9 @@ $left-gutter: 64px;
             top: 14px;
             left: $spacing-8;
         }
+        .mx_EventTile_line {
+            margin-top: 8px;
+        }
 
         .mx_EventTile_line,
         .mx_EventTile_reply {
@@ -920,7 +923,7 @@ $left-gutter: 64px;
 
         .mx_EventTile_copyButton {
             height: 17px;
-            mask-image: url($copy-button-url);
+            mask-image: url("$(res)/img/element-icons/copy.svg");
             mask-position: center center;
             mask-repeat: no-repeat;
             mask-size: contain;
@@ -1422,6 +1425,16 @@ $left-gutter: 64px;
     display: flex;
     gap: var(--cpd-space-2x);
     align-items: center;
+}
+
+.mx_EventTile_senderDetailsWithTimestamp {
+    display: flex;
+    align-items: baseline;
+    gap: var(--cpd-space-2x);
+    padding-left: 64px;
+    .mx_MessageTimestamp {
+        display: block !important;
+    }
 }
 
 /* Media query for mobile UI */

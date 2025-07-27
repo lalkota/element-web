@@ -14,7 +14,10 @@ Please see LICENSE files in the repository root for full details.
     z-index: 10;
 
     &.mx_ToggleSidebar--collapsed {
-        width: 80px;
+        width: 96px;
+        .mx_ToggleSidebar_roomAvatar {
+           margin-right: 0px;
+        }
     }
 }
 
@@ -22,7 +25,7 @@ Please see LICENSE files in the repository root for full details.
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px;
+    padding: 16px 10px;
     min-height: 64px;
 }
 
@@ -30,7 +33,7 @@ Please see LICENSE files in the repository root for full details.
     display: flex;
     align-items: center;
     gap: 8px;
-    
+    padding-left: 16px;    
     .mx_ToggleSidebar--collapsed & {
         justify-content: center;
         
@@ -262,6 +265,7 @@ Please see LICENSE files in the repository root for full details.
     transition: all 0.2s ease;
     border-radius: 0;
     position: relative;
+    gap: 10px;
 
     &:hover {
         background-color: #f3f4f6;
@@ -327,6 +331,12 @@ Please see LICENSE files in the repository root for full details.
         background: linear-gradient(270deg,rgba(255, 255, 255, 1) 0%, rgba(139, 33, 168, 0.2) 100%);
         color: #374151;
     }
+
+    .mx_WithPresenceIndicator .mx_WithPresenceIndicator_icon {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
 }
 
 .mx_ToggleSidebar_sectionIcon {
@@ -336,7 +346,6 @@ Please see LICENSE files in the repository root for full details.
     mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;
-    margin-right: 12px;
     flex-shrink: 0;
 
     &.mx_ToggleSidebar_sectionIcon--home {
@@ -400,12 +409,11 @@ Please see LICENSE files in the repository root for full details.
 }
 
 .mx_ToggleSidebar_roomAvatar {
-    width: 24px !important;
-    height: 24px !important;
+    width: 32px !important;
+    height: 32px !important;
     flex-shrink: 0;
     border-radius: 50%;
     overflow: hidden;
-    margin-right: 12px;
 }
 
 .mx_ToggleSidebar_sectionLabel {
@@ -496,25 +504,45 @@ Please see LICENSE files in the repository root for full details.
     background: var(--background);
     box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
     inner-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    
+}
+
+.mx_ToggleSidebar--collapsed .mx_ToggleSidebar_user {
+    box-shadow: none;
+    inner-shadow: none;
+    background: transparent;
+}
+
+.mx_ToggleSidebar_userAvatarContainer {
+    position: relative;
+    margin-right: 12px;
 }
 
 .mx_ToggleSidebar_userAvatar {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    margin-right: 12px;
-    position: relative;
+}
+
+.mx_ToggleSidebar_presenceIndicator {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--cpd-color-bg-canvas-default);
     
-    &::after {
-        content: "YQ";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        font-size: 14px;
-        font-weight: 600;
+    &--online {
+        background-color: #4ade80; /* green-400 */
+    }
+    
+    &--unavailable {
+        background-color: #f59e0b; /* amber-500 */
+    }
+    
+    &--offline {
+        background-color: #6b7280; /* gray-500 */
     }
 }
 

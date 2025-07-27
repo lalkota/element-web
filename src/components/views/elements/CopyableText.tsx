@@ -45,7 +45,9 @@ export const CopyTextButton: React.FC<Pick<IProps, "getTextToCopy" | "className"
             onTooltipOpenChange={(open) => {
                 if (!open) onHideTooltip();
             }}
-        />
+        >
+            Copy
+        </AccessibleButton>
     );
 };
 

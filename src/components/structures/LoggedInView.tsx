@@ -53,6 +53,7 @@ import { UPDATE_EVENT } from "../../stores/AsyncStore";
 import { RoomView } from "./RoomView";
 import ToastContainer from "./ToastContainer";
 import UserView from "./UserView";
+import MentionsView from "./MentionsView";
 import { BackdropPanel } from "./BackdropPanel";
 import { mediaFromMxc } from "../../customisations/Media";
 import { UserTab } from "../views/dialogs/UserTab";
@@ -117,6 +118,7 @@ interface IState {
     activeCalls: Array<MatrixCall>;
     backgroundImage?: string;
     toggleSidebarCollapsed: boolean;
+    showMentionsView: boolean;
 }
 
 /**
@@ -140,6 +142,7 @@ class LoggedInView extends React.Component<IProps, IState> {
     protected backgroundImageWatcherRef?: string;
     protected timezoneProfileUpdateRef?: string[];
     protected resizer?: Resizer<ICollapseConfig, CollapseItem>;
+    protected dispatcherRef?: string;
 
     public constructor(props: IProps) {
         super(props);
@@ -151,6 +154,7 @@ class LoggedInView extends React.Component<IProps, IState> {
             usageLimitDismissed: false,
             activeCalls: LegacyCallHandler.instance.getAllActiveCalls(),
             toggleSidebarCollapsed: false,
+            showMentionsView: false,
         };
 
         // stash the MatrixClient in case we log out before we are unmounted
@@ -200,6 +204,9 @@ class LoggedInView extends React.Component<IProps, IState> {
         OwnProfileStore.instance.on(UPDATE_EVENT, this.refreshBackgroundImage);
         this.loadResizerPreferences();
         this.refreshBackgroundImage();
+        
+        // Register dispatcher listener for mentions view
+        this.dispatcherRef = dis.register(this.onAction);
     }
 
     private onTimezoneUpdate = async (): Promise<void> => {
@@ -239,6 +246,11 @@ class LoggedInView extends React.Component<IProps, IState> {
         SettingsStore.unwatchSetting(this.backgroundImageWatcherRef);
         this.timezoneProfileUpdateRef?.forEach((s) => SettingsStore.unwatchSetting(s));
         this.resizer?.detach();
+        
+        // Unregister dispatcher listener
+        if (this.dispatcherRef) {
+            dis.unregister(this.dispatcherRef);
+        }
     }
 
     private onCallState = (): void => {
@@ -272,6 +284,22 @@ class LoggedInView extends React.Component<IProps, IState> {
 
     private onToggleSidebar = (collapsed: boolean): void => {
         this.setState({ toggleSidebarCollapsed: collapsed });
+    };
+
+    public showMentionsView = (): void => {
+        this.setState({ showMentionsView: true });
+    };
+
+    public hideMentionsView = (): void => {
+        this.setState({ showMentionsView: false });
+    };
+
+    private onAction = (payload: any): void => {
+        switch (payload.action) {
+            case "show_mentions_view":
+                this.showMentionsView();
+                break;
+        }
     };
 
     private createResizer(): Resizer<ICollapseConfig, CollapseItem> {
@@ -783,7 +811,14 @@ class LoggedInView extends React.Component<IProps, IState> {
                                         </div>
                                     </div>
                                 )}
-                                {pageElement}
+                                {this.state.showMentionsView ? (
+                                    <MentionsView 
+                                        resizeNotifier={this.props.resizeNotifier}
+                                        onClose={this.hideMentionsView}
+                                    />
+                                ) : (
+                                    pageElement
+                                )}
                             </div>
                         </div>
                     </div>

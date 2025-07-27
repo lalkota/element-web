@@ -82,13 +82,6 @@ Please see LICENSE files in the repository root for full details.
         margin-top: 0;
     }
 
-    input[type="text"],
-    input[type="password"] {
-        color: $authpage-primary-color;
-        background-color: $background;
-        border: 1px solid var(--cpd-color-border-interactive-secondary);
-    }
-
     .mx_Field label {
         color: $authpage-secondary-color;
     }
@@ -96,7 +89,8 @@ Please see LICENSE files in the repository root for full details.
     .mx_Field input,
     .mx_Field select {
         color: $authpage-primary-color;
-        background-color: $background;
+        background-color: var(--background);
+        border: 1px solid var(--border-color);
     }
 
     .mx_Field_labelAlwaysTopLeft label,

@@ -28,6 +28,9 @@ export enum RightPanelPhases {
     // Thread stuff
     ThreadView = "ThreadView",
     ThreadPanel = "ThreadPanel",
+    
+    // Mentions stuff
+    MentionsPanel = "MentionsPanel",
 }
 
 export function backLabelForPhase(phase: RightPanelPhases | null): string | null {
@@ -42,6 +45,8 @@ export function backLabelForPhase(phase: RightPanelPhases | null): string | null
             return _t("member_list_back_action_label");
         case RightPanelPhases.ThreadView:
             return _t("thread_view_back_action_label");
+        case RightPanelPhases.MentionsPanel:
+            return "Mentions";
     }
     return null;
 }
