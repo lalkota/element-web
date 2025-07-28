@@ -11,6 +11,7 @@ export enum RoomContentTab {
     Chat = "chat",
     Images = "images",
     Files = "files",
+    Links = "links",
 }
 
 interface RoomTabContextValue {
@@ -24,7 +25,7 @@ interface RoomTabProviderProps {
     children: ReactNode;
 }
 
-export function RoomTabProvider({ children }: RoomTabProviderProps): JSX.Element {
+export function RoomTabProvider({ children }: RoomTabProviderProps): React.JSX.Element {
     const [activeTab, setActiveTab] = useState<RoomContentTab>(RoomContentTab.Chat);
 
     return (

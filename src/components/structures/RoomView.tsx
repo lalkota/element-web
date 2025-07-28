@@ -75,7 +75,9 @@ import RoomUpgradeWarningBar from "../views/rooms/RoomUpgradeWarningBar";
 import AuxPanel from "../views/rooms/AuxPanel";
 import RoomHeader from "../views/rooms/RoomHeader/RoomHeader";
 import { RoomTabProvider } from "../../contexts/RoomTabContext";
+import { RoomSearchProvider } from "../../contexts/RoomSearchContext";
 import RoomContent from "./RoomContent";
+import ConditionalMessageComposer from "../views/rooms/ConditionalMessageComposer";
 import { type IOOBData, type IThreepidInvite } from "../../stores/ThreepidInviteStore";
 import EffectsOverlay from "../views/elements/EffectsOverlay";
 import { containsEmoji } from "../../effects/utils";
@@ -2568,21 +2570,25 @@ export class RoomView extends React.Component<IRoomProps, IRoomState> {
                         {pinnedMessageBanner}
                         <main className={timelineClasses}>
                             <FileDropTarget parent={this.roomView.current} onFileDrop={this.onFileDrop} />
-                            <RoomContent
-                                room={this.state.room!}
-                                chatContent={
-                                    <>
-                                        {topUnreadMessagesBar}
-                                        {jumpToBottom}
-                                        {messagePanel}
-                                        {searchResultsPanel}
-                                    </>
-                                }
-                            />
+                            <RoomSearchProvider>
+                                <RoomContent
+                                    room={this.state.room!}
+                                    chatContent={
+                                        <>
+                                            {topUnreadMessagesBar}
+                                            {jumpToBottom}
+                                            {messagePanel}
+                                            {searchResultsPanel}
+                                        </>
+                                    }
+                                />
+                            </RoomSearchProvider>
                         </main>
                         {statusBarArea}
                         {previewBar}
-                        {messageComposer}
+                        <ConditionalMessageComposer>
+                            {messageComposer}
+                        </ConditionalMessageComposer>
                     </>
                 );
                 break;

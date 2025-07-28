@@ -9,19 +9,24 @@ Please see LICENSE files in the repository root for full details.
 .mx_LegacyRoomListHeader {
     display: flex;
     align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--cpd-color-border-interactive-secondary);
+    background: var(--cpd-color-bg-canvas-default);
 
     .mx_LegacyRoomListHeader_contextLessTitle,
     .mx_LegacyRoomListHeader_contextMenuButton {
-        font: var(--cpd-font-heading-sm-semibold);
-        font-weight: var(--cpd-font-weight-semibold);
-        padding: 1px 24px 1px 4px;
+        font: var(--cpd-font-heading-md-semibold);
+        color: var(--cpd-color-text-primary);
+        padding: 8px 32px 8px 0;
         position: relative;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        margin-left: 8px;
+        margin: 0;
         margin-right: auto;
         user-select: none;
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
     }
 
     .mx_LegacyRoomListHeader_contextMenuButton {
@@ -55,35 +60,42 @@ Please see LICENSE files in the repository root for full details.
     }
 
     .mx_LegacyRoomListHeader_plusButton {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         border-radius: 8px;
         position: relative;
-        padding: 8px;
-        margin-left: 8px;
-        margin-right: 12px;
-        background-color: $panel-actions;
+        padding: 0;
+        margin-left: 12px;
+        background-color: var(--cpd-color-bg-action-primary-rest);
+        border: none;
         box-sizing: border-box;
         flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
 
         &::before {
             content: "";
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             position: absolute;
             mask-position: center;
             mask-size: contain;
             mask-repeat: no-repeat;
-            background-color: $secondary-content;
+            background-color: var(--cpd-color-icon-on-solid-primary);
             mask-image: url("@vector-im/compound-design-tokens/icons/plus.svg");
         }
 
         &:hover {
-            background-color: $tertiary-content;
+            background-color: var(--cpd-color-bg-action-primary-hovered);
+            transform: scale(1.05);
+        }
 
-            &::before {
-                background-color: $background;
-            }
+        &:active {
+            background-color: var(--cpd-color-bg-action-primary-pressed);
+            transform: scale(0.98);
         }
     }
 }

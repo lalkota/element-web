@@ -44,6 +44,7 @@ import { shouldShowComponent } from "../../../customisations/helpers/UIComponent
 import { UIComponent } from "../../../settings/UIFeature";
 import { isKnockDenied } from "../../../utils/membership";
 import SettingsStore from "../../../settings/SettingsStore";
+import DMRoomMap from "../../../utils/DMRoomMap";
 
 interface Props {
     room: Room;
@@ -386,6 +387,14 @@ class RoomTile extends React.PureComponent<Props, State> {
         if (typeof name !== "string") name = "";
         name = name.replace(":", ":\u200b"); // add a zero-width space to allow linewrapping after the colon
 
+        // Check if this is a DM and get the user ID
+        const dmRoomMap = DMRoomMap.shared();
+        const isDM = dmRoomMap.getUserIdForRoomId(this.props.room.roomId) !== undefined;
+        const dmUserId = isDM ? dmRoomMap.getUserIdForRoomId(this.props.room.roomId) : null;
+        
+        // Extract username from full user ID (e.g., "@rob:matrix.meetxcyberx.com" -> "@rob")
+        const dmUsername = dmUserId ? dmUserId.split(':')[0] : null;
+
         let badge: React.ReactNode;
         if (!this.props.isMinimized && this.notificationState) {
             // aria-hidden because we summarise the unread count/highlight status in a manual aria-label below
@@ -415,6 +424,11 @@ class RoomTile extends React.PureComponent<Props, State> {
             <div className="mx_RoomTile_titleContainer">
                 <div title={name} className={titleClasses} tabIndex={-1}>
                     <span dir="auto">{name}</span>
+                    {isDM && dmUsername && (
+                        <div className="mx_RoomTile_userId" title={dmUserId || dmUsername}>
+                            {dmUsername}
+                        </div>
+                    )}
                 </div>
                 {subtitle}
             </div>

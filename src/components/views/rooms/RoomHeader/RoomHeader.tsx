@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Com
 Please see LICENSE files in the repository root for full details.
 */
 
-import React, { type JSX, useCallback, useMemo, useState } from "react";
+import React, { type JSX, useCallback, useMemo, useState, useEffect } from "react";
 import { Body as BodyText, Button, IconButton, Menu, MenuItem, Tooltip } from "@vector-im/compound-web";
 import VideoCallIcon from "@vector-im/compound-design-tokens/assets/web/icons/video-call-solid";
 import CallIcon from "../../../../../res/img/element-icons/room/composer/call.svg";
@@ -14,6 +14,7 @@ import VideoIcon from "../../../../../res/img/element-icons/room/composer/video.
 import ChatIcon from "./icons/ChatIcon";
 import ImageIcon from "./icons/ImageIcon";
 import AttachmentIcon from "./icons/AttachmentIcon";
+import ExternalLinkIcon from "@vector-im/compound-design-tokens/assets/web/icons/link";
 
 import CloseCallIcon from "@vector-im/compound-design-tokens/assets/web/icons/close";
 import ThreadsIcon from "@vector-im/compound-design-tokens/assets/web/icons/threads-solid";
@@ -27,6 +28,7 @@ import { type ViewRoomOpts } from "@matrix-org/react-sdk-module-api/lib/lifecycl
 
 import { useRoomName } from "../../../../hooks/useRoomName.ts";
 import { RightPanelPhases } from "../../../../stores/right-panel/RightPanelStorePhases.ts";
+import DMRoomMap from "../../../../utils/DMRoomMap.ts";
 import { useMatrixClientContext } from "../../../../contexts/MatrixClientContext.tsx";
 import { useRoomMemberCount, useRoomMembers } from "../../../../hooks/useRoomMembers.ts";
 import { _t } from "../../../../languageHandler.tsx";
@@ -80,6 +82,24 @@ export default function RoomHeader({
 
     const roomName = useRoomName(room);
     const joinRule = useRoomState(room, (state) => state.getJoinRule());
+    
+    // Check if this is a direct message room
+    const isDM = useMemo(() => {
+        const dmRoomMap = DMRoomMap.shared();
+        return dmRoomMap.getUserIdForRoomId(room.roomId) !== undefined;
+    }, [room.roomId]);
+    
+    // Switch to Chat tab if current tab becomes unavailable due to room type
+    useEffect(() => {
+        // If we're in a DM and on Links tab, switch to Chat
+        if (isDM && activeTab === RoomContentTab.Links) {
+            setActiveTab(RoomContentTab.Chat);
+        }
+        // If we're in a room (not DM) and on Images tab, switch to Chat
+        if (!isDM && activeTab === RoomContentTab.Images) {
+            setActiveTab(RoomContentTab.Chat);
+        }
+    }, [isDM, activeTab, setActiveTab]);
 
     const members = useRoomMembers(room, 2500);
     const memberCount = useRoomMemberCount(room, { throttleWait: 2500 });
@@ -271,8 +291,8 @@ export default function RoomHeader({
     return (
         <>
             <CurrentRightPanelPhaseContextProvider roomId={room.roomId}>
-                <Flex as="header" align="center" gap="var(--cpd-space-3x)" className="mx_RoomHeader light-panel">
-                    <WithPresenceIndicator room={room} size="8px">
+                <Flex as="header" align="center" gap="4px" className="mx_RoomHeader light-panel">
+                    <WithPresenceIndicator room={room} size="8px" mr="4px">
                         {/* We hide this from the tabIndex list as it is a pointer shortcut and superfluous for a11y */}
                         <RoomAvatar
                             room={room}
@@ -368,16 +388,19 @@ export default function RoomHeader({
                             <ChatIcon width="16" height="16" className="mx_TabbedRoomHeader_tab_icon" />
                             Chat
                         </AccessibleButton>
-                        <AccessibleButton
-                            className={classNames("mx_TabbedRoomHeader_tab", {
-                                "mx_TabbedRoomHeader_tab--active": activeTab === RoomContentTab.Images,
-                            })}
-                            onClick={() => setActiveTab(RoomContentTab.Images)}
-                            aria-label="Images"
-                        >
-                            <ImageIcon width="16" height="16" className="mx_TabbedRoomHeader_tab_icon" />
-                            Images
-                        </AccessibleButton>
+                        {/* Hide Images tab in rooms (only show in DMs) */}
+                        {isDM && (
+                            <AccessibleButton
+                                className={classNames("mx_TabbedRoomHeader_tab", {
+                                    "mx_TabbedRoomHeader_tab--active": activeTab === RoomContentTab.Images,
+                                })}
+                                onClick={() => setActiveTab(RoomContentTab.Images)}
+                                aria-label="Images"
+                            >
+                                <ImageIcon width="16" height="16" className="mx_TabbedRoomHeader_tab_icon" />
+                                Images
+                            </AccessibleButton>
+                        )}
                         <AccessibleButton
                             className={classNames("mx_TabbedRoomHeader_tab", {
                                 "mx_TabbedRoomHeader_tab--active": activeTab === RoomContentTab.Files,
@@ -388,6 +411,19 @@ export default function RoomHeader({
                             <AttachmentIcon width="16" height="16" className="mx_TabbedRoomHeader_tab_icon" />
                             Files
                         </AccessibleButton>
+                        {/* Hide Links tab in DMs (only show in rooms) */}
+                        {!isDM && (
+                            <AccessibleButton
+                                className={classNames("mx_TabbedRoomHeader_tab", {
+                                    "mx_TabbedRoomHeader_tab--active": activeTab === RoomContentTab.Links,
+                                })}
+                                onClick={() => setActiveTab(RoomContentTab.Links)}
+                                aria-label="Links"
+                            >
+                                <ExternalLinkIcon width="16" height="16" className="mx_TabbedRoomHeader_tab_icon" />
+                                Links
+                            </AccessibleButton>
+                        )}
                     </div>
 
                     {isViewingCall && <CallGuestLinkButton room={room} />}

@@ -1,0 +1,134 @@
+/*
+Copyright 2024 New Vector Ltd.
+
+SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Commercial
+Please see LICENSE files in the repository root for full details.
+*/
+
+.mx_RoomLinksView {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--cpd-color-bg-canvas-default);
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+.mx_RoomLinksView_content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--cpd-space-4x);
+}
+
+.mx_RoomLinksView_dateGroup {
+    margin-bottom: var(--cpd-space-6x);
+}
+
+.mx_RoomLinksView_dateHeader {
+    font-size: var(--cpd-font-size-body-sm);
+    font-weight: var(--cpd-font-weight-medium);
+    color: var(--cpd-color-text-secondary);
+    margin-bottom: var(--cpd-space-3x);
+    padding-left: var(--cpd-space-2x);
+}
+
+.mx_RoomLinksView_linksList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--cpd-space-2x);
+}
+
+.mx_RoomLinksView_linkItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--cpd-space-3x);
+    background: var(--cpd-color-bg-canvas-default);
+    border: 1px solid var(--cpd-color-border-interactive-secondary);
+    border-radius: var(--cpd-radius-pill-effect);
+    transition: all 0.2s ease;
+}
+
+.mx_RoomLinksView_linkItem:hover {
+    border-color: var(--cpd-color-border-interactive-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mx_RoomLinksView_linkContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.mx_RoomLinksView_linkTitle {
+    font-size: var(--cpd-font-size-body-md);
+    font-weight: var(--cpd-font-weight-medium);
+    color: var(--cpd-color-text-primary);
+    margin-bottom: var(--cpd-space-1x);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mx_RoomLinksView_linkUrl {
+    font-size: var(--cpd-font-size-body-sm);
+    color: var(--cpd-color-text-secondary);
+    font-family: var(--cpd-font-family-mono);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mx_RoomLinksView_linkButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: 1px solid var(--cpd-color-border-interactive-secondary);
+    border-radius: var(--cpd-radius-pill-effect);
+    color: var(--cpd-color-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    margin-left: var(--cpd-space-3x);
+}
+
+.mx_RoomLinksView_linkButton:hover {
+    background: var(--cpd-color-bg-subtle-secondary);
+    border-color: var(--cpd-color-border-interactive-primary);
+    color: var(--cpd-color-text-primary);
+}
+
+.mx_RoomLinksView_linkButton:active {
+    background: var(--cpd-color-bg-subtle-primary);
+}
+
+.mx_RoomLinksView_empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: var(--cpd-space-8x);
+}
+
+.mx_RoomLinksView_empty_icon {
+    margin-bottom: var(--cpd-space-4x);
+    opacity: 0.5;
+    color: var(--cpd-color-text-secondary);
+}
+
+.mx_RoomLinksView_empty h3 {
+    margin: 0 0 var(--cpd-space-2x) 0;
+    font-size: var(--cpd-font-size-heading-sm);
+    font-weight: var(--cpd-font-weight-semibold);
+    color: var(--cpd-color-text-primary);
+}
+
+.mx_RoomLinksView_empty p {
+    margin: 0;
+    font-size: var(--cpd-font-size-body-md);
+    color: var(--cpd-color-text-secondary);
+}

@@ -6,9 +6,11 @@ Please see LICENSE files in the repository root for full details.
 */
 
 .mx_RoomFilesView {
-    padding: 16px;
-    height: 100%;
+    height: calc(100% - 40px);
     overflow-y: auto;
+    background: var(--cpd-color-bg-canvas-default);
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
     
     &--loading,
     &--empty {
@@ -16,66 +18,154 @@ Please see LICENSE files in the repository root for full details.
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100%;
+        height: calc(100% - 40px);
         text-align: center;
         gap: 8px;
+        padding: 30px;
     }
 }
 
-.mx_RoomFilesView_header {
+.mx_RoomFilesView_content {
+    padding: 20px 30px;
+}
+
+.mx_RoomFilesView_section {
+    margin-bottom: 32px;
+    
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.mx_RoomFilesView_sectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--cpd-color-border-interactive-secondary);
+    
+    h3 {
+        font: var(--cpd-font-heading-sm-semibold);
+        color: var(--cpd-color-text-primary);
+        margin: 0;
+    }
+    
+    .mx_RoomFilesView_seeAll {
+        color: var(--cpd-color-text-action-accent);
+        font: var(--cpd-font-body-sm-medium);
+        text-decoration: none;
+        cursor: pointer;
+        
+        &:hover {
+            text-decoration: underline;
+        }
+    }
 }
 
 .mx_RoomFilesView_list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
 }
 
 .mx_RoomFilesView_item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px;
+    gap: 16px;
+    padding: 16px;
     background-color: var(--cpd-color-bg-canvas-default);
     border: 1px solid var(--cpd-color-border-interactive-secondary);
-    border-radius: 8px;
+    border-radius: 12px;
     transition: all 0.2s ease;
+    cursor: pointer;
     
     &:hover {
-        border-color: var(--cpd-color-border-interactive-primary);
         background-color: var(--cpd-color-bg-subtle-secondary);
+        border-color: var(--cpd-color-border-interactive-primary);
     }
 }
 
 .mx_RoomFilesView_fileIcon {
-    font-size: 24px;
-    width: 32px;
-    height: 32px;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--cpd-color-bg-subtle-secondary);
-    border-radius: 6px;
     flex-shrink: 0;
+    background-color: var(--cpd-color-bg-subtle-primary);
+    border-radius: 8px;
+    font-size: 24px;
 }
 
 .mx_RoomFilesView_fileInfo {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .mx_RoomFilesView_filename {
+    font: var(--cpd-font-body-md-semibold);
     color: var(--cpd-color-text-primary);
-    margin-bottom: 4px;
-    word-break: break-all;
+    margin: 0;
+    word-break: break-word;
+    line-height: 1.2;
 }
 
 .mx_RoomFilesView_metadata {
+    font: var(--cpd-font-body-sm-regular);
     color: var(--cpd-color-text-secondary);
-    word-break: break-all;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+}
+
+.mx_RoomFilesView_actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 1;
+    background-color: var(--cpd-color-bg-subtle-primary);
+    border-radius: 8px;
+    padding: 8px;
+    transition: opacity 0.2s ease;
+}
+
+.mx_RoomFilesView_actionButton {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    color: var(--cpd-color-icon-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    position: relative;
+    background: transparent;
+    border: 1px solid transparent;
+    
+    &:hover {
+        border-color: var(--cpd-color-border-interactive-primary);
+        color: var(--cpd-color-icon-primary);
+        transform: scale(1.05);
+    }
+    
+    &:active {
+        transform: scale(0.98);
+    }
+    
+    svg {
+        width: 20px;
+        height: 20px;
+    }
 }
 
 .mx_RoomFilesView_emptyTitle {
@@ -104,6 +194,20 @@ Please see LICENSE files in the repository root for full details.
         width: 28px;
         height: 28px;
     }
+    
+    .mx_RoomFilesView_actions {
+        gap: 4px;
+    }
+    
+    .mx_RoomFilesView_actionButton {
+        width: 24px;
+        height: 24px;
+        
+        svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
 }
 
 @media (max-width: 480px) {
@@ -116,5 +220,22 @@ Please see LICENSE files in the repository root for full details.
         font-size: 18px;
         width: 24px;
         height: 24px;
+    }
+    
+    .mx_RoomFilesView_actions {
+        gap: 2px;
+        
+        /* Show actions by default on very small screens */
+        opacity: 1;
+    }
+    
+    .mx_RoomFilesView_actionButton {
+        width: 20px;
+        height: 20px;
+        
+        svg {
+            width: 10px;
+            height: 10px;
+        }
     }
 }

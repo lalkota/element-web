@@ -11,6 +11,7 @@ import { Room } from "matrix-js-sdk/src/matrix";
 import { useRoomTab, RoomContentTab } from "../../contexts/RoomTabContext";
 import RoomImagesView from "../views/rooms/RoomImagesView";
 import RoomFilesView from "../views/rooms/RoomFilesView";
+import RoomLinksView from "../views/rooms/RoomLinksView";
 
 interface RoomContentProps {
     room: Room;
@@ -25,6 +26,8 @@ export default function RoomContent({ room, chatContent }: RoomContentProps): JS
             return <RoomImagesView room={room} />;
         case RoomContentTab.Files:
             return <RoomFilesView room={room} />;
+        case RoomContentTab.Links:
+            return <RoomLinksView room={room} />;
         case RoomContentTab.Chat:
         default:
             return <>{chatContent}</>;

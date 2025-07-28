@@ -1,0 +1,71 @@
+/*
+Copyright 2024 New Vector Ltd.
+
+SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Commercial
+Please see LICENSE files in the repository root for full details.
+*/
+
+.mx_RoomSearchHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--cpd-space-3x);
+    background: var(--cpd-color-bg-canvas-default);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0 20px;
+}
+
+.mx_RoomSearchHeader_search {
+    flex: 1;
+    position: relative;
+    .mx_textinput {
+        border: 1px solid var(--border-color) !important;
+        border-radius: 8px;
+    }
+}
+
+.mx_RoomSearchHeader_searchBox {
+    width: 100%;
+    padding: var(--cpd-space-2x) 20px;
+    border-radius: 8px;
+    background: var(--cpd-color-bg-canvas-default);
+    font-size: var(--cpd-font-size-body-md);
+    color: var(--cpd-color-text-primary);
+    height: 44px;
+    box-sizing: border-box;
+}
+
+.mx_RoomSearchHeader_searchBox:focus {
+    outline: none;
+    border-color: var(--cpd-color-border-focused);
+    box-shadow: 0 0 0 2px var(--cpd-color-border-focused-alpha);
+}
+
+.mx_RoomSearchHeader_dateFilter {
+    display: flex;
+    align-items: center;
+    gap: var(--cpd-space-2x);
+    padding: var(--cpd-space-2x) var(--cpd-space-3x);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--cpd-color-bg-canvas-default);
+    min-width: 150px;
+    height: 44px;
+    box-sizing: border-box;
+}
+
+.mx_RoomSearchHeader_dateIcon {
+    color: var(--cpd-color-text-secondary);
+    flex-shrink: 0;
+}
+
+.mx_RoomSearchHeader_dateInput {
+    border: none;
+    background: transparent;
+    font-size: var(--cpd-font-size-body-md);
+    color: var(--cpd-color-text-primary);
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}

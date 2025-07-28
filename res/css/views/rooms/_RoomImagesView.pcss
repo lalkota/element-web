@@ -6,7 +6,6 @@ Please see LICENSE files in the repository root for full details.
 */
 
 .mx_RoomImagesView {
-    padding: 16px;
     height: 100%;
     overflow-y: auto;
     
@@ -23,15 +22,18 @@ Please see LICENSE files in the repository root for full details.
 }
 
 .mx_RoomImagesView_header {
-    margin-bottom: 16px;
-    padding-bottom: 8px;
+    padding: 16px 30px;
     border-bottom: 1px solid var(--cpd-color-border-interactive-secondary);
+    p {
+        margin: 0;
+    }
 }
 
 .mx_RoomImagesView_grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
+    padding: 16px 30px;
 }
 
 .mx_RoomImagesView_item {

@@ -5,18 +5,16 @@ SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Com
 Please see LICENSE files in the repository root for full details.
 */
 
-import React, { useState, useEffect, useCallback, type JSX } from "react";
+import React, { useState, useEffect, useCallback, useMemo, type JSX } from "react";
 import { Room, MatrixEvent, EventType, MsgType } from "matrix-js-sdk/src/matrix";
 import { Text } from "@vector-im/compound-web";
-import classNames from "classnames";
 
 import { _t } from "../../../languageHandler";
-import { useMatrixClientContext } from "../../../contexts/MatrixClientContext";
 import { mediaFromMxc } from "../../../customisations/Media";
-import { presentableTextForFile } from "../../../utils/FileUtils";
 import { formatDate } from "../../../DateUtils";
-import MFileBody from "../messages/MFileBody";
-import { type IMediaEventContent } from "../../../customisations/models/IMediaEventContent";
+import { fileSize } from "../../../utils/FileUtils";
+import { useRoomSearch } from "../../../contexts/RoomSearchContext";
+import RoomSearchHeader from "./RoomSearchHeader";
 
 interface IProps {
     room: Room;
@@ -35,7 +33,7 @@ interface ImageEvent {
 export default function RoomImagesView({ room }: IProps): JSX.Element {
     const [imageEvents, setImageEvents] = useState<ImageEvent[]>([]);
     const [loading, setLoading] = useState(true);
-    const client = useMatrixClientContext();
+    const { searchQuery, selectedDate } = useRoomSearch();
 
     const loadImages = useCallback(async () => {
         if (!room) return;
@@ -48,7 +46,7 @@ export default function RoomImagesView({ room }: IProps): JSX.Element {
         
         for (const event of events) {
             if (event.getType() === EventType.RoomMessage) {
-                const content = event.getContent() as IMediaEventContent;
+                const content = event.getContent();
                 if (content.msgtype === MsgType.Image && content.url) {
                     const media = mediaFromMxc(content.url);
                     const thumbnailMedia = content.info?.thumbnail_url ? 
@@ -57,7 +55,7 @@ export default function RoomImagesView({ room }: IProps): JSX.Element {
                     images.push({
                         event,
                         url: media.srcHttp || "",
-                        thumbnailUrl: thumbnailMedia?.srcHttp,
+                        thumbnailUrl: thumbnailMedia?.srcHttp || undefined,
                         filename: content.body || "Image",
                         fileSize: content.info?.size,
                         timestamp: event.getTs(),
@@ -78,6 +76,31 @@ export default function RoomImagesView({ room }: IProps): JSX.Element {
         loadImages();
     }, [loadImages]);
 
+    // Filter images based on search query and selected date
+    const filteredImages = useMemo(() => {
+        let filtered = imageEvents;
+
+        // Filter by search query
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            filtered = filtered.filter((image) => 
+                image.filename.toLowerCase().includes(query) ||
+                image.sender.toLowerCase().includes(query)
+            );
+        }
+
+        // Filter by selected date
+        if (selectedDate) {
+            const selectedDateObj = new Date(selectedDate);
+            filtered = filtered.filter((image) => {
+                const imageDate = new Date(image.timestamp);
+                return imageDate.toDateString() === selectedDateObj.toDateString();
+            });
+        }
+
+        return filtered;
+    }, [imageEvents, searchQuery, selectedDate]);
+
     const handleImageClick = useCallback((imageEvent: ImageEvent) => {
         // TODO: Open image in lightbox/modal
         window.open(imageEvent.url, '_blank');
@@ -95,26 +118,46 @@ export default function RoomImagesView({ room }: IProps): JSX.Element {
 
     if (imageEvents.length === 0) {
         return (
-            <div className="mx_RoomImagesView mx_RoomImagesView--empty">
-                <Text size="md" weight="medium" className="mx_RoomImagesView_emptyTitle">
-                    No images yet
-                </Text>
-                <Text size="sm" className="mx_RoomImagesView_emptyDescription">
-                    Images shared in this room will appear here
-                </Text>
+            <div className="mx_RoomImagesView">
+                <RoomSearchHeader room={room} showDateFilter={true} />
+                <div className="mx_RoomImagesView mx_RoomImagesView--empty">
+                    <Text size="md" weight="medium" className="mx_RoomImagesView_emptyTitle">
+                        No images yet
+                    </Text>
+                    <Text size="sm" className="mx_RoomImagesView_emptyDescription">
+                        Images shared in this room will appear here
+                    </Text>
+                </div>
+            </div>
+        );
+    }
+
+    if (filteredImages.length === 0) {
+        return (
+            <div className="mx_RoomImagesView">
+                <RoomSearchHeader room={room} showDateFilter={true} />
+                <div className="mx_RoomImagesView mx_RoomImagesView--empty">
+                    <Text size="md" weight="medium" className="mx_RoomImagesView_emptyTitle">
+                        No images found
+                    </Text>
+                    <Text size="sm" className="mx_RoomImagesView_emptyDescription">
+                        Try adjusting your search or date filter
+                    </Text>
+                </div>
             </div>
         );
     }
 
     return (
         <div className="mx_RoomImagesView">
+            <RoomSearchHeader room={room} showDateFilter={true} />
             <div className="mx_RoomImagesView_header">
                 <Text size="lg" weight="semibold">
-                    Images ({imageEvents.length})
+                    Images ({filteredImages.length})
                 </Text>
             </div>
             <div className="mx_RoomImagesView_grid">
-                {imageEvents.map((imageEvent) => (
+                {filteredImages.map((imageEvent) => (
                     <div
                         key={imageEvent.event.getId()}
                         className="mx_RoomImagesView_item"
@@ -135,7 +178,7 @@ export default function RoomImagesView({ room }: IProps): JSX.Element {
                             <Text size="xs" className="mx_RoomImagesView_metadata">
                                 {formatDate(new Date(imageEvent.timestamp))}
                                 {imageEvent.fileSize && (
-                                    <span> • {presentableTextForFile(imageEvent.fileSize)}</span>
+                                    <span> • {fileSize(imageEvent.fileSize, { base: 2, standard: "jedec" })}</span>
                                 )}
                             </Text>
                         </div>

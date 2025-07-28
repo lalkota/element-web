@@ -9,7 +9,7 @@ Please see LICENSE files in the repository root for full details.
 /* Note: the room tile expects to be in a flexbox column container */
 .mx_RoomTile {
     margin-bottom: 4px;
-    padding: 4px;
+    padding: 8px;
 
     /* The tile is also a flexbox row itself */
     display: flex;
@@ -22,7 +22,7 @@ Please see LICENSE files in the repository root for full details.
     &:hover,
     &:focus-within,
     &.mx_RoomTile_hasMenuOpen {
-        background-color: $panel-actions;
+        background-color: rgba(0, 0, 0, 0.02);
         border-radius: 8px;
     }
 
@@ -75,6 +75,17 @@ Please see LICENSE files in the repository root for full details.
 
         .mx_RoomTile_titleWithSubtitle {
             margin-top: -2px; /* shift the title up a bit more */
+        }
+
+        .mx_RoomTile_userId {
+            font-size: var(--cpd-font-size-body-xs);
+            color: var(--cpd-color-text-secondary);
+            line-height: 1.2;
+            margin-top: 1px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            opacity: 0.8;
         }
     }
 
