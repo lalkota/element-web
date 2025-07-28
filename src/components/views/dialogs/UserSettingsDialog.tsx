@@ -18,22 +18,22 @@ import KeyboardIcon from "@vector-im/compound-design-tokens/assets/web/icons/key
 import KeyIcon from "@vector-im/compound-design-tokens/assets/web/icons/key";
 import SidebarIcon from "@vector-im/compound-design-tokens/assets/web/icons/sidebar";
 import MicOnIcon from "@vector-im/compound-design-tokens/assets/web/icons/mic-on";
-import LockIcon from "@vector-im/compound-design-tokens/assets/web/icons/lock";
-import LabsIcon from "@vector-im/compound-design-tokens/assets/web/icons/labs";
+// import LockIcon from "@vector-im/compound-design-tokens/assets/web/icons/lock"; // UNUSED - Security tab hidden
+// import LabsIcon from "@vector-im/compound-design-tokens/assets/web/icons/labs"; // UNUSED - Labs tab hidden
 import BlockIcon from "@vector-im/compound-design-tokens/assets/web/icons/block";
-import HelpIcon from "@vector-im/compound-design-tokens/assets/web/icons/help";
+// import HelpIcon from "@vector-im/compound-design-tokens/assets/web/icons/help"; // UNUSED - Help tab hidden
 
 import TabbedView, { Tab, useActiveTabWithDefault } from "../../structures/TabbedView";
 import { _t, _td } from "../../../languageHandler";
 import AccountUserSettingsTab from "../settings/tabs/user/AccountUserSettingsTab";
-import SettingsStore from "../../../settings/SettingsStore";
-import LabsUserSettingsTab, { showLabsFlags } from "../settings/tabs/user/LabsUserSettingsTab";
+// import SettingsStore from "../../../settings/SettingsStore"; // UNUSED - Labs tab hidden
+// import LabsUserSettingsTab, { showLabsFlags } from "../settings/tabs/user/LabsUserSettingsTab"; // UNUSED - Labs tab hidden
 import AppearanceUserSettingsTab from "../settings/tabs/user/AppearanceUserSettingsTab";
-import SecurityUserSettingsTab from "../settings/tabs/user/SecurityUserSettingsTab";
+// import SecurityUserSettingsTab from "../settings/tabs/user/SecurityUserSettingsTab"; // UNUSED - Security tab hidden
 import NotificationUserSettingsTab from "../settings/tabs/user/NotificationUserSettingsTab";
 import PreferencesUserSettingsTab from "../settings/tabs/user/PreferencesUserSettingsTab";
 import VoiceUserSettingsTab from "../settings/tabs/user/VoiceUserSettingsTab";
-import HelpUserSettingsTab from "../settings/tabs/user/HelpUserSettingsTab";
+// import HelpUserSettingsTab from "../settings/tabs/user/HelpUserSettingsTab"; // UNUSED - Help tab hidden
 import MjolnirUserSettingsTab from "../settings/tabs/user/MjolnirUserSettingsTab";
 import { UIFeature } from "../../../settings/UIFeature";
 import BaseDialog from "./BaseDialog";
@@ -179,15 +179,16 @@ export default function UserSettingsDialog(props: IProps): JSX.Element {
             );
         }
 
-        tabs.push(
-            new Tab(
-                UserTab.Security,
-                _td("room_settings|security|title"),
-                <LockIcon />,
-                <SecurityUserSettingsTab closeSettingsFn={props.onFinished} />,
-                "UserSettingsSecurityPrivacy",
-            ),
-        );
+        // Security & Privacy tab - HIDDEN
+        // tabs.push(
+        //     new Tab(
+        //         UserTab.Security,
+        //         _td("room_settings|security|title"),
+        //         <LockIcon />,
+        //         <SecurityUserSettingsTab closeSettingsFn={props.onFinished} />,
+        //         "UserSettingsSecurityPrivacy",
+        //     ),
+        // );
 
         tabs.push(
             new Tab(
@@ -199,11 +200,12 @@ export default function UserSettingsDialog(props: IProps): JSX.Element {
             ),
         );
 
-        if (showLabsFlags() || SettingsStore.getFeatureSettingNames().some((k) => SettingsStore.getBetaInfo(k))) {
-            tabs.push(
-                new Tab(UserTab.Labs, _td("common|labs"), <LabsIcon />, <LabsUserSettingsTab />, "UserSettingsLabs"),
-            );
-        }
+        // Labs tab - HIDDEN
+        // if (showLabsFlags() || SettingsStore.getFeatureSettingNames().some((k) => SettingsStore.getBetaInfo(k))) {
+        //     tabs.push(
+        //         new Tab(UserTab.Labs, _td("common|labs"), <LabsIcon />, <LabsUserSettingsTab />, "UserSettingsLabs"),
+        //     );
+        // }
         if (mjolnirEnabled) {
             tabs.push(
                 new Tab(
@@ -215,15 +217,16 @@ export default function UserSettingsDialog(props: IProps): JSX.Element {
                 ),
             );
         }
-        tabs.push(
-            new Tab(
-                UserTab.Help,
-                _td("setting|help_about|title"),
-                <HelpIcon />,
-                <HelpUserSettingsTab />,
-                "UserSettingsHelpAbout",
-            ),
-        );
+        // Help & About tab - HIDDEN
+        // tabs.push(
+        //     new Tab(
+        //         UserTab.Help,
+        //         _td("setting|help_about|title"),
+        //         <HelpIcon />,
+        //         <HelpUserSettingsTab />,
+        //         "UserSettingsHelpAbout",
+        //     ),
+        // );
 
         return tabs as NonEmptyArray<Tab<UserTab>>;
     };
