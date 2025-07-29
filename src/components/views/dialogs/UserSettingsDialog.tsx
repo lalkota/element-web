@@ -46,6 +46,8 @@ import { SDKContext, type SdkContextClass } from "../../../contexts/SDKContext";
 import { useSettingValue } from "../../../hooks/useSettings";
 import { ToastContext, useActiveToast } from "../../../contexts/ToastContext";
 import { EncryptionUserSettingsTab, type State } from "../settings/tabs/user/EncryptionUserSettingsTab";
+import { HelpIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
+import HelpUserSettingsTab from "../settings/tabs/user/HelpUserSettingsTab";
 
 interface IProps {
     initialTabId?: UserTab;
