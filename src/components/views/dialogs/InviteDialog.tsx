@@ -1377,13 +1377,9 @@ export default class InviteDialog extends React.PureComponent<Props, IInviteDial
                 },
             );
 
-        //     <a
-        //     className="mx_InviteDialog_helpText_userId"
-        //     href={makeUserPermalink(userId)}
-        //     rel="noreferrer noopener"
-        //     target="_blank"
-        // >
-        //     {userId}
+
+        // <a href={makeCustomRoomPermalink(roomId)} rel="noreferrer noopener" target="_blank">
+        //     {sub}
         // </a>
 
             buttonText = _t("action|invite");
