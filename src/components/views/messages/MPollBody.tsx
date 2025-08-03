@@ -20,7 +20,7 @@ import {
     type TimelineEvents,
 } from "matrix-js-sdk/src/matrix";
 import { RelatedRelations } from "matrix-js-sdk/src/models/related-relations";
-import { type PollStartEvent, type PollAnswerSubevent } from "matrix-js-sdk/src/extensible_events_v1/PollStartEvent";
+import { PollStartEvent, type PollAnswerSubevent } from "matrix-js-sdk/src/extensible_events_v1/PollStartEvent";
 import { PollResponseEvent } from "matrix-js-sdk/src/extensible_events_v1/PollResponseEvent";
 
 import { _t } from "../../../languageHandler";
@@ -287,7 +287,98 @@ export default class MPollBody extends React.Component<IBodyProps, IState> {
             return null;
         }
 
-        const pollEvent = poll.pollEvent;
+        // Get the original poll event
+        let pollEvent = poll.pollEvent;
+        let pollQuestion = pollEvent.question.text;
+        let pollAnswers = pollEvent.answers;
+        
+        // Check if there's an edited version of the poll
+        const replacingEvent = this.props.mxEvent.replacingEvent();
+        
+        // Add debug logs
+        console.log("Original poll event:", {
+            question: pollQuestion,
+            options: pollAnswers.map(a => a.text),
+            eventType: this.props.mxEvent.getType(),
+            hasReplacingEvent: !!replacingEvent
+        });
+        
+        // If we have an edited poll, try to extract the edited content
+        if (replacingEvent) {
+            console.log("Replacing event found:", {
+                eventId: replacingEvent.getId(),
+                eventType: replacingEvent.getType(),
+                content: replacingEvent.getContent()
+            });
+            
+            // Get the edited content
+            const content = replacingEvent.getContent();
+            
+            // For edited polls, the new content is in m.new_content
+            if (content && content['m.new_content']) {
+                const newContent = content['m.new_content'];
+                console.log("Found m.new_content:", newContent);
+                
+                // Try to extract poll data directly from the content
+                try {
+                    // The edited content might be directly in newContent
+                    // or in a nested property like org.matrix.msc3381.poll.start
+                    console.log("Checking for poll data in edited content");
+                    
+                    // First try to get poll data from the standard locations
+                    let pollData = newContent[M_POLL_START.name] || newContent[M_POLL_START.altName];
+                    
+                    // If not found, check if the content itself is the poll data
+                    if (!pollData && newContent.question && newContent.answers) {
+                        console.log("Found poll data directly in m.new_content");
+                        pollData = newContent;
+                    }
+                    
+                    if (pollData) {
+                        console.log("Found poll data in edited content:", pollData);
+                        
+                        // Extract question text - handle different formats
+                        if (pollData.question) {
+                            // The question might be in different formats
+                            if (typeof pollData.question === 'string') {
+                                pollQuestion = pollData.question;
+                            } else if (pollData.question.text) {
+                                pollQuestion = pollData.question.text;
+                            } else if (pollData.question['org.matrix.msc1767.text']) {
+                                pollQuestion = pollData.question['org.matrix.msc1767.text'];
+                            } else if (pollData.question.body) {
+                                pollQuestion = pollData.question.body;
+                            }
+                            console.log("Using edited question:", pollQuestion);
+                        }
+                        
+                        // Extract answers - handle different formats
+                        if (pollData.answers && Array.isArray(pollData.answers)) {
+                            pollAnswers = pollData.answers.map((answer: any) => {
+                                // Create a compatible answer object
+                                return {
+                                    id: answer.id,
+                                    // Try different possible text field names
+                                    text: answer.text || 
+                                          answer['org.matrix.msc1767.text'] || 
+                                          answer['m.text'] ||
+                                          (typeof answer === 'string' ? answer : '')
+                                };
+                            });
+                            console.log("Using edited answers:", pollAnswers.map(a => a.text));
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error extracting poll data from edited content:", e);
+                }
+            }
+        }
+        
+        // Log the final poll data being used
+        console.log("Final poll data being used:", {
+            question: pollQuestion,
+            options: pollAnswers.map(a => a.text)
+        });
 
         const pollId = this.props.mxEvent.getId()!;
         const isFetchingResponses = !pollInitialised || poll.isFetchingResponses;
@@ -327,11 +418,11 @@ export default class MPollBody extends React.Component<IBodyProps, IState> {
         return (
             <div className="mx_MPollBody">
                 <h2 data-testid="pollQuestion">
-                    {pollEvent.question.text}
+                    {pollQuestion}
                     {editedSpan}
                 </h2>
                 <div className="mx_MPollBody_allOptions">
-                    {pollEvent.answers.map((answer: PollAnswerSubevent) => {
+                    {pollAnswers.map((answer: PollAnswerSubevent) => {
                         let answerVotes = 0;
 
                         if (showResults) {

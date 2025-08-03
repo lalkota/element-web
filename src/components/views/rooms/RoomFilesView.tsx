@@ -7,6 +7,7 @@ Please see LICENSE files in the repository root for full details.
 
 import React, { useState, useEffect, useCallback, useMemo, type JSX } from "react";
 import { Room, MatrixEvent, EventType, MsgType } from "matrix-js-sdk/src/matrix";
+import { MediaEventHelper } from "../../../utils/MediaEventHelper.ts";
 import { Text, IconButton } from "@vector-im/compound-web";
 import DownloadIcon from "../../../../res/img/element-icons/roomlist/document-download.svg";
 import VisibilityOnIcon from "../../../../res/img/element-icons/roomlist/eye.svg";
@@ -17,6 +18,7 @@ import { mediaFromMxc } from "../../../customisations/Media";
 import { fileSize } from "../../../utils/FileUtils";
 import { formatDate } from "../../../DateUtils";
 import { useRoomSearch } from "../../../contexts/RoomSearchContext";
+import { MatrixClientPeg } from "../../../MatrixClientPeg";
 import RoomSearchHeader from "./RoomSearchHeader";
 
 interface IProps {
@@ -31,6 +33,7 @@ interface FileEvent {
     mimeType?: string;
     timestamp: number;
     sender: string;
+    isEncrypted: boolean;
 }
 
 export default function RoomFilesView({ room }: IProps): JSX.Element {
@@ -54,18 +57,26 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
                 if ((content.msgtype === MsgType.File || 
                      content.msgtype === MsgType.Audio || 
                      content.msgtype === MsgType.Video) && 
-                    content.url) {
-                    const media = mediaFromMxc(content.url);
+                    (content.url || content.file)) {
                     
-                    files.push({
-                        event,
-                        url: media.srcHttp || "",
-                        filename: content.body || "File",
-                        fileSize: content.info?.size,
-                        mimeType: content.info?.mimetype,
-                        timestamp: event.getTs(),
-                        sender: event.getSender() || "",
-                    });
+                    // Check if file is encrypted
+                    const isEncrypted = !!content.file;
+                    const mxcUrl = content.url || content.file?.url;
+                    
+                    if (mxcUrl) {
+                        const media = mediaFromMxc(mxcUrl);
+                        
+                        files.push({
+                            event,
+                            url: media.srcHttp || "",
+                            filename: content.body || "File",
+                            fileSize: content.info?.size,
+                            mimeType: content.info?.mimetype,
+                            timestamp: event.getTs(),
+                            sender: event.getSender() || "",
+                            isEncrypted,
+                        });
+                    }
                 }
             }
         }
@@ -136,40 +147,139 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
         };
     }, [fileEvents, searchQuery, selectedDate]);
 
-    const handleDownload = useCallback((fileEvent: FileEvent) => {
-        const link = document.createElement('a');
-        link.href = fileEvent.url;
-        link.download = fileEvent.filename;
-        link.target = '_blank';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const downloadFile = useCallback(async (fileEvent: FileEvent): Promise<Blob | null> => {
+        try {
+            const client = MatrixClientPeg.get();
+            if (!client) {
+                throw new Error("Matrix client not available");
+            }
+
+            const content = fileEvent.event.getContent();
+            
+            if (fileEvent.isEncrypted && content.file) {
+                // Handle encrypted files using MediaEventHelper
+                const mediaHelper = new MediaEventHelper(fileEvent.event);
+                const blob = await mediaHelper.sourceBlob.value;
+                
+                if (!blob) {
+                    throw new Error("Failed to decrypt file");
+                }
+                
+                return blob;
+            } else {
+                // Handle unencrypted files
+                const response = await fetch(fileEvent.url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.blob();
+            }
+        } catch (error) {
+            console.error("Error downloading file:", error);
+            return null;
+        }
     }, []);
 
-    const handleView = useCallback((fileEvent: FileEvent) => {
-        // Open file in new tab for viewing
-        window.open(fileEvent.url, '_blank');
-    }, []);
+    const handleDownload = useCallback(async (fileEvent: FileEvent) => {
+        try {
+            const blob = await downloadFile(fileEvent);
+            
+            if (!blob) {
+                console.error("Failed to download file");
+                // TODO: Show error toast
+                return;
+            }
+            
+            // Create download link
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileEvent.filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Clean up the blob URL
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error in handleDownload:", error);
+            // TODO: Show error toast
+        }
+    }, [downloadFile]);
+
+    const handleView = useCallback(async (fileEvent: FileEvent) => {
+        try {
+            const blob = await downloadFile(fileEvent);
+            
+            if (!blob) {
+                console.error("Failed to download file");
+                // TODO: Show error toast
+                return;
+            }
+            
+            // Create download link
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileEvent.filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Clean up the blob URL
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error in handleDownload:", error);
+            // TODO: Show error toast
+        }
+    }, [downloadFile]);
 
     const handleShare = useCallback(async (fileEvent: FileEvent) => {
-        if (navigator.share) {
-            try {
+        try {
+            if (navigator.share && fileEvent.isEncrypted) {
+                // For encrypted files, we need to get the blob first
+                const blob = await downloadFile(fileEvent);
+                
+                if (blob) {
+                    const file = new File([blob], fileEvent.filename, { type: fileEvent.mimeType || 'application/octet-stream' });
+                    await navigator.share({
+                        title: fileEvent.filename,
+                        files: [file],
+                    });
+                }
+            } else if (navigator.share && !fileEvent.isEncrypted) {
+                // For unencrypted files, share the URL
                 await navigator.share({
                     title: fileEvent.filename,
                     url: fileEvent.url,
                 });
-            } catch (error) {
-                console.log('Error sharing:', error);
-                // Fallback to copying URL to clipboard
+            } else {
+                // Fallback to copying URL to clipboard (only works for unencrypted files)
+                if (!fileEvent.isEncrypted) {
+                    await handleCopyLink(fileEvent);
+                } else {
+                    console.log("Cannot share encrypted file - no native share API available");
+                    // TODO: Show appropriate message to user
+                }
+            }
+        } catch (error) {
+            console.log('Error sharing:', error);
+            // Fallback to copying URL to clipboard for unencrypted files
+            if (!fileEvent.isEncrypted) {
                 handleCopyLink(fileEvent);
             }
-        } else {
-            // Fallback to copying URL to clipboard
-            handleCopyLink(fileEvent);
         }
-    }, []);
+    }, [downloadFile]);
 
     const handleCopyLink = useCallback(async (fileEvent: FileEvent) => {
+        if (fileEvent.isEncrypted) {
+            console.log("Cannot copy link for encrypted file");
+            // TODO: Show appropriate message to user
+            return;
+        }
+        
         try {
             await navigator.clipboard.writeText(fileEvent.url);
             // TODO: Show toast notification
@@ -187,7 +297,8 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
             type: fileEvent.mimeType,
             uploaded: new Date(fileEvent.timestamp),
             sender: fileEvent.sender,
-            url: fileEvent.url
+            url: fileEvent.url,
+            encrypted: fileEvent.isEncrypted
         };
         
         // For now, log the info (can be replaced with modal later)
@@ -196,8 +307,9 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
         // Simple alert for demonstration (replace with proper modal)
         const sizeText = fileEvent.fileSize ? fileSize(fileEvent.fileSize, { base: 2, standard: "jedec" }) : 'Unknown';
         const dateText = formatDate(new Date(fileEvent.timestamp));
+        const encryptionText = fileEvent.isEncrypted ? 'Yes' : 'No';
         
-        alert(`File Information:\n\nName: ${fileEvent.filename}\nSize: ${sizeText}\nType: ${fileEvent.mimeType || 'Unknown'}\nUploaded: ${dateText}\nSender: ${fileEvent.sender}`);
+        alert(`File Information:\n\nName: ${fileEvent.filename}\nSize: ${sizeText}\nType: ${fileEvent.mimeType || 'Unknown'}\nUploaded: ${dateText}\nSender: ${fileEvent.sender}\nEncrypted: ${encryptionText}`);
     }, []);
 
     const getFileIcon = useCallback((mimeType?: string, filename?: string) => {
@@ -273,6 +385,7 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
                                     >
                                         <div className="mx_RoomFilesView_fileIcon">
                                             {getFileIcon(fileEvent.mimeType, fileEvent.filename)}
+
                                         </div>
                                         <div className="mx_RoomFilesView_fileInfo">
                                             <p className="mx_RoomFilesView_filename">
