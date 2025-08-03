@@ -75,6 +75,7 @@ import RoomSearch from "./RoomSearch";
 import ToggleSidebar from "./ToggleSidebar";
 import AccessibleButton, { type ButtonEvent } from "../views/elements/AccessibleButton";
 import PosthogTrackers from "../../PosthogTrackers";
+import RoomScrollStateStore from "../../stores/RoomScrollStateStore";
 
 // We need to fetch each pinned message individually (if we don't already have it)
 // so each pinned message may trigger a request. Limit the number per room for sanity.
@@ -167,6 +168,10 @@ class LoggedInView extends React.Component<IProps, IState> {
         this.resizeHandler = React.createRef();
     }
 
+    // Track the last viewed room ID and state
+    private lastRoomId: string | null = null;
+
+
     public componentDidMount(): void {
         document.addEventListener("keydown", this.onNativeKeyDown, false);
         LegacyCallHandler.instance.addListener(LegacyCallHandlerEvent.CallState, this.onCallState);
@@ -205,7 +210,7 @@ class LoggedInView extends React.Component<IProps, IState> {
         this.loadResizerPreferences();
         this.refreshBackgroundImage();
         
-        // Register dispatcher listener for mentions view
+        // Register dispatcher listeners
         this.dispatcherRef = dis.register(this.onAction);
     }
 
@@ -298,6 +303,109 @@ class LoggedInView extends React.Component<IProps, IState> {
         switch (payload.action) {
             case "show_mentions_view":
                 this.showMentionsView();
+                break;
+                
+            case Action.ViewRoom: {
+                // Save current room's scroll state before navigating away
+                if (this.lastRoomId && this._roomView.current) {
+                    // Use the public API to get scroll state
+                    const scrollState = this._roomView.current.getScrollState();
+                    if (scrollState) {
+                        // Save to both localStorage and RoomScrollStateStore for consistency
+                        localStorage.setItem(`mx_${this.lastRoomId}_scroll`, JSON.stringify(scrollState));
+                        RoomScrollStateStore.setScrollState(this.lastRoomId, scrollState);
+                    }
+                }
+
+                if (payload.room_id) {
+                    // Store the new room ID for future navigation
+                    const previousRoomId = this.lastRoomId;
+                    this.lastRoomId = payload.room_id;
+                    localStorage.setItem("mx_last_room_id", payload.room_id);
+                    
+                    // If we're switching rooms (not initial load), restore the scroll position
+                    if (previousRoomId && previousRoomId !== payload.room_id) {
+                        // Try to get from localStorage
+                        const savedScroll = localStorage.getItem(`mx_${payload.room_id}_scroll`);
+                        if (savedScroll) {
+                            try {
+                                const scrollState = JSON.parse(savedScroll);
+                                // Use the public API to restore scroll position
+                                if (scrollState?.focussedEvent) {
+                                    setTimeout(() => {
+                                        this._roomView.current?.scrollToEvent(
+                                            scrollState.focussedEvent,
+                                            scrollState.pixelOffset || 0,
+                                        );
+                                    }, 100);
+                                }
+                            } catch (e) {
+                                console.error("Failed to restore scroll position", e);
+                            }
+                        }
+                    }
+                }
+
+                // Close mentions panel if open
+                if (this.state.showMentionsView) {
+                    this.hideMentionsView();
+                }
+                break;
+            }
+                
+            case Action.ViewHomePage:
+                // Save scroll position when leaving room for home
+                if (this.lastRoomId && this._roomView.current) {
+                    const scrollPos = this._roomView.current.getScrollPosition();
+                    if (scrollPos !== null && scrollPos !== undefined) {
+                        localStorage.setItem(`mx_${this.lastRoomId}_scroll`, scrollPos.toString());
+                    }
+                }
+                
+                // Close mentions view when going to home
+                if (this.state.showMentionsView) {
+                    this.hideMentionsView();
+                }
+                break;
+                
+            // Handle case when user clicks on "Chats" in the sidebar
+            case "view_chats":
+                // If we have a last viewed room, navigate to it
+                if (this.lastRoomId) {
+                    const scrollPos = parseInt(
+                        localStorage.getItem(`mx_${this.lastRoomId}_scroll`) || '0',
+                        10
+                    );
+                    
+                    dis.dispatch({
+                        action: Action.ViewRoom,
+                        room_id: this.lastRoomId,
+                        scrollPosition: isNaN(scrollPos) ? 0 : scrollPos,
+                        scrollDelay: 100, // Ensure room is rendered before scrolling
+                    });
+                } else {
+                    // If no last room, go to home page
+                    dis.dispatch({ action: Action.ViewHomePage });
+                }
+                break;
+                
+            // Keep the old handler for backward compatibility
+            case Action.ViewRoomDirectory:
+                // If we have a last viewed room, navigate to it instead of room directory
+                if (this.lastRoomId) {
+                    const scrollPos = parseInt(
+                        localStorage.getItem(`mx_${this.lastRoomId}_scroll`) || '0',
+                        10
+                    );
+                    
+                    dis.dispatch({
+                        action: Action.ViewRoom,
+                        room_id: this.lastRoomId,
+                        scrollPosition: isNaN(scrollPos) ? 0 : scrollPos,
+                        scrollDelay: 100,
+                    });
+                    return; // Prevent default room directory behavior
+                }
                 break;
         }
     };

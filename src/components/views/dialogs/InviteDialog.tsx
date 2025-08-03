@@ -70,6 +70,12 @@ import { type UserProfilesStore } from "../../../stores/UserProfilesStore";
 // we have a number of types defined from the Matrix spec which can't reasonably be altered here.
 /* eslint-disable camelcase */
 
+const makeCustomRoomPermalink = (roomId: string): string => {
+    const baseUrl = "https://web.meetxcyberx.com";
+    const encodedRoomId = encodeURIComponent(roomId);
+    return `${baseUrl}/#/room/${encodedRoomId}`;
+};
+
 const extractTargetUnknownProfiles = async (
     targets: Member[],
     profilesStores: UserProfilesStore,
@@ -1362,23 +1368,23 @@ export default class InviteDialog extends React.PureComponent<Props, IInviteDial
                 helpTextUntranslated,
                 {},
                 {
-                    userId: () => (
-                        <a
-                            className="mx_InviteDialog_helpText_userId"
-                            href={makeUserPermalink(userId)}
-                            rel="noreferrer noopener"
-                            target="_blank"
-                        >
-                            {userId}
-                        </a>
-                    ),
+                    userId: () => (userId),
                     a: (sub) => (
-                        <a href={makeRoomPermalink(cli, roomId)} rel="noreferrer noopener" target="_blank">
+                        <a href={makeCustomRoomPermalink(roomId)} rel="noreferrer noopener" target="_blank">
                             {sub}
                         </a>
                     ),
                 },
             );
+
+        //     <a
+        //     className="mx_InviteDialog_helpText_userId"
+        //     href={makeUserPermalink(userId)}
+        //     rel="noreferrer noopener"
+        //     target="_blank"
+        // >
+        //     {userId}
+        // </a>
 
             buttonText = _t("action|invite");
             goButtonFn = this.inviteUsers;

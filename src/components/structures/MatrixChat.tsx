@@ -1479,7 +1479,13 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             this.screenAfterLogin = undefined;
         } else if (localStorage && localStorage.getItem("mx_last_room_id")) {
             // Before defaulting to directory, show the last viewed room
-            this.viewLastRoom();
+            try {
+                this.viewLastRoom();
+            } catch (error) {
+                logger.error("Error restoring last room:", error);
+                // Fall back to home page if there's an error
+                dis.dispatch({ action: Action.ViewHomePage });
+            }
         } else {
             if (MatrixClientPeg.safeGet().isGuest()) {
                 dis.dispatch({ action: "view_welcome_page" });
@@ -1490,11 +1496,78 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
     }
 
     private viewLastRoom(): void {
+        const roomId = localStorage.getItem("mx_last_room_id");
+        if (!roomId) {
+            dis.dispatch({ action: Action.ViewHomePage });
+            return;
+        }
+
+        const matrixClient = MatrixClientPeg.safeGet();
+        const room = matrixClient.getRoom(roomId);
+
+        if (room) {
+            // Room is already in the client's store
+            this.doViewRoom(roomId);
+        } else {
+            // Room not in store yet, wait for sync
+            const onSync = (state: SyncState, prevState: SyncState | null, data?: SyncStateData) => {
+                if (state === SyncState.Syncing) {
+                    // Give the client a moment to process the sync
+                    setTimeout(() => {
+                        if (matrixClient.getRoom(roomId)) {
+                            matrixClient.off(ClientEvent.Sync, onSync);
+                            this.doViewRoom(roomId);
+                        } else if (prevState === SyncState.Syncing) {
+                            // We were already syncing but the room didn't load
+                            matrixClient.off(ClientEvent.Sync, onSync);
+                            this.handleRoomLoadError(new Error("Room not found after sync"));
+                        }
+                    }, 100);
+                }
+            };
+
+            // Set a timeout in case the room never loads
+            const timeout = setTimeout(() => {
+                matrixClient.off(ClientEvent.Sync, onSync);
+                this.handleRoomLoadError(new Error("Timed out waiting for room to load"));
+            }, 10000); // 10 second timeout
+
+            matrixClient.on(ClientEvent.Sync, onSync);
+
+            // Clean up the timeout if the component unmounts
+            this.loadSessionAbortController.signal.addEventListener('abort', () => {
+                clearTimeout(timeout);
+                matrixClient.off(ClientEvent.Sync, onSync);
+            });
+        }
+    }
+
+    private doViewRoom(roomId: string): void {
+        const scrollPosition = parseInt(localStorage.getItem(`mx_${roomId}_scroll`) || '0', 10);
+        
         dis.dispatch<ViewRoomPayload>({
             action: Action.ViewRoom,
-            room_id: localStorage.getItem("mx_last_room_id") ?? undefined,
-            metricsTrigger: undefined, // other
+            room_id: roomId,
+            metricsTrigger: "RoomList", // Using RoomList as a fallback metric
+            scrollPosition: scrollPosition || undefined,
+            scrollDelay: 100, // Small delay to ensure the room is rendered before scrolling
         });
+    }
+
+    private handleRoomLoadError(error: Error): void {
+        logger.error("Failed to load last viewed room:", error);
+        
+        // Clear the last room ID to prevent getting stuck in a loop
+        localStorage.removeItem("mx_last_room_id");
+        
+        // Fall back to home view
+        dis.dispatch({ action: Action.ViewHomePage });
+        
+        // Show error to user
+        const title = _t("Failed to load room");
+        const description = _t("The room could not be loaded. You have been taken to your home page.");
+        
+        Modal.createDialog(ErrorDialog, { title, description });
     }
 
     /**

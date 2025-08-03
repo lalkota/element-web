@@ -10,13 +10,13 @@ Please see LICENSE files in the repository root for full details.
 
 import { type Room } from "matrix-js-sdk/src/matrix";
 import classNames from "classnames";
-import { type Enable, Resizable } from "re-resizable";
+import { Resizable } from "re-resizable";
 import { type Direction } from "re-resizable/lib/resizer";
 import React, { type JSX, type ComponentType, createRef, type ReactComponentElement, type ReactNode } from "react";
 
 import { polyfillTouchEvent } from "../../../@types/polyfill";
 import { KeyBindingAction } from "../../../accessibility/KeyboardShortcuts";
-import { RovingAccessibleButton, RovingTabIndexWrapper } from "../../../accessibility/RovingTabIndex";
+import { RovingTabIndexWrapper } from "../../../accessibility/RovingTabIndex";
 import { Action } from "../../../dispatcher/actions";
 import defaultDispatcher, { type MatrixDispatcher } from "../../../dispatcher/dispatcher";
 import { type ActionPayload } from "../../../dispatcher/payloads";
@@ -318,32 +318,6 @@ export default class RoomSublist extends React.Component<IProps, IState> {
         this.setState({ isResizing: false, height: newHeight });
     };
 
-    private onShowAllClick = async (): Promise<void> => {
-        // read number of visible tiles before we mutate it
-        const numVisibleTiles = this.numVisibleTiles;
-        const newHeight = this.layout.tilesToPixelsWithPadding(this.numTiles, this.padding);
-        this.applyHeightChange(newHeight);
-        this.setState({ height: newHeight }, () => {
-            // focus the top-most new room
-            this.focusRoomTile(numVisibleTiles);
-        });
-    };
-
-    private onShowLessClick = (): void => {
-        const newHeight = this.layout.tilesToPixelsWithPadding(this.layout.defaultVisibleTiles, this.padding);
-        this.applyHeightChange(newHeight);
-        this.setState({ height: newHeight });
-    };
-
-    private focusRoomTile = (index: number): void => {
-        if (!this.sublistRef.current) return;
-        const elements = this.sublistRef.current.querySelectorAll<HTMLDivElement>(".mx_RoomTile");
-        const element = elements && elements[index];
-        if (element) {
-            element.focus();
-        }
-    };
-
     private onOpenMenuClick = (ev: ButtonEvent): void => {
         ev.preventDefault();
         ev.stopPropagation();
@@ -491,20 +465,11 @@ export default class RoomSublist extends React.Component<IProps, IState> {
     };
 
     private renderVisibleTiles(): React.ReactElement[] {
-        if (!this.state.isExpanded && !this.props.forceExpanded) {
-            // don't waste time on rendering
-            return [];
-        }
-
         const tiles: React.ReactElement[] = [];
 
         if (this.state.rooms) {
-            let visibleRooms = this.state.rooms;
-            if (!this.props.forceExpanded) {
-                visibleRooms = visibleRooms.slice(0, this.numVisibleTiles);
-            }
-
-            for (const room of visibleRooms) {
+            // Always render all rooms without any slicing
+            for (const room of this.state.rooms) {
                 tiles.push(
                     <RoomTile
                         room={room}
@@ -520,14 +485,6 @@ export default class RoomSublist extends React.Component<IProps, IState> {
         if (this.extraTiles) {
             // HACK: We break typing here, but this 'extra tiles' property shouldn't exist.
             (tiles as any[]).push(...this.extraTiles);
-        }
-
-        // We only have to do this because of the extra tiles. We do it conditionally
-        // to avoid spending cycles on slicing. It's generally fine to do this though
-        // as users are unlikely to have more than a handful of tiles when the extra
-        // tiles are used.
-        if (tiles.length > this.numVisibleTiles && !this.props.forceExpanded) {
-            return tiles.slice(0, this.numVisibleTiles);
         }
 
         return tiles;
@@ -718,123 +675,11 @@ export default class RoomSublist extends React.Component<IProps, IState> {
         let content: JSX.Element | undefined;
         if (this.state.roomsLoading) {
             content = <div className="mx_RoomSublist_skeletonUI" />;
-        } else if (visibleTiles.length > 0 && this.props.forceExpanded) {
-            content = (
-                <div className="mx_RoomSublist_resizeBox mx_RoomSublist_resizeBox_forceExpanded">
-                    <div className="mx_RoomSublist_tiles" ref={this.tilesRef}>
-                        {visibleTiles}
-                    </div>
-                </div>
-            );
         } else if (visibleTiles.length > 0) {
-            const layout = this.layout; // to shorten calls
-
-            const minTiles = Math.min(layout.minVisibleTiles, this.numTiles);
-            const showMoreAtMinHeight = minTiles < this.numTiles;
-            const minHeightPadding = RESIZE_HANDLE_HEIGHT + (showMoreAtMinHeight ? SHOW_N_BUTTON_HEIGHT : 0);
-            const minTilesPx = layout.tilesToPixelsWithPadding(minTiles, minHeightPadding);
-            const maxTilesPx = layout.tilesToPixelsWithPadding(this.numTiles, this.padding);
-            const showMoreBtnClasses = classNames({
-                mx_RoomSublist_showNButton: true,
-            });
-
-            // If we're hiding rooms, show a 'show more' button to the user. This button
-            // floats above the resize handle, if we have one present. If the user has all
-            // tiles visible, it becomes 'show less'.
-            let showNButton: JSX.Element | undefined;
-
-            if (maxTilesPx > this.state.height) {
-                // the height of all the tiles is greater than the section height: we need a 'show more' button
-                const nonPaddedHeight = this.state.height - RESIZE_HANDLE_HEIGHT - SHOW_N_BUTTON_HEIGHT;
-                const amountFullyShown = Math.floor(nonPaddedHeight / this.layout.tileHeight);
-                const numMissing = this.numTiles - amountFullyShown;
-                const label = _t("room_list|show_n_more", { count: numMissing });
-                let showMoreText: ReactNode = <span className="mx_RoomSublist_showNButtonText">{label}</span>;
-                if (this.props.isMinimized) showMoreText = null;
-                showNButton = (
-                    <RovingAccessibleButton
-                        role="treeitem"
-                        onClick={this.onShowAllClick}
-                        className={showMoreBtnClasses}
-                        aria-label={label}
-                    >
-                        <span className="mx_RoomSublist_showMoreButtonChevron mx_RoomSublist_showNButtonChevron">
-                            {/* set by CSS masking */}
-                        </span>
-                        {showMoreText}
-                    </RovingAccessibleButton>
-                );
-            } else if (this.numTiles > this.layout.defaultVisibleTiles) {
-                // we have all tiles visible - add a button to show less
-                const label = _t("room_list|show_less");
-                let showLessText: ReactNode = <span className="mx_RoomSublist_showNButtonText">{label}</span>;
-                if (this.props.isMinimized) showLessText = null;
-                showNButton = (
-                    <RovingAccessibleButton
-                        role="treeitem"
-                        onClick={this.onShowLessClick}
-                        className={showMoreBtnClasses}
-                        aria-label={label}
-                    >
-                        <span className="mx_RoomSublist_showLessButtonChevron mx_RoomSublist_showNButtonChevron">
-                            {/* set by CSS masking */}
-                        </span>
-                        {showLessText}
-                    </RovingAccessibleButton>
-                );
-            }
-
-            // Figure out if we need a handle
-            const handles: Enable = {
-                bottom: true, // the only one we need, but the others must be explicitly false
-                bottomLeft: false,
-                bottomRight: false,
-                left: false,
-                right: false,
-                top: false,
-                topLeft: false,
-                topRight: false,
-            };
-            if (layout.visibleTiles >= this.numTiles && this.numTiles <= layout.minVisibleTiles) {
-                // we're at a minimum, don't have a bottom handle
-                handles.bottom = false;
-            }
-
-            // We have to account for padding so we can accommodate a 'show more' button and
-            // the resize handle, which are pinned to the bottom of the container. This is the
-            // easiest way to have a resize handle below the button as otherwise we're writing
-            // our own resize handling and that doesn't sound fun.
-            //
-            // The layout class has some helpers for dealing with padding, as we don't want to
-            // apply it in all cases. If we apply it in all cases, the resizing feels like it
-            // goes backwards and can become wildly incorrect (visibleTiles says 18 when there's
-            // only mathematically 7 possible).
-
-            const handleWrapperClasses = classNames({
-                mx_RoomSublist_resizerHandles: true,
-                mx_RoomSublist_resizerHandles_showNButton: !!showNButton,
-            });
-
             content = (
-                <React.Fragment>
-                    <Resizable
-                        size={{ height: this.state.height } as any}
-                        minHeight={minTilesPx}
-                        maxHeight={maxTilesPx}
-                        onResizeStart={this.onResizeStart}
-                        onResizeStop={this.onResizeStop}
-                        onResize={this.onResize}
-                        handleWrapperClass={handleWrapperClasses}
-                        handleClasses={{ bottom: "mx_RoomSublist_resizerHandle" }}
-                        className="mx_RoomSublist_resizeBox"
-                        enable={handles}
-                    >
-                        <div className="mx_RoomSublist_tiles" ref={this.tilesRef}>
-                            {visibleTiles}
-                        </div>
-                        {showNButton}
-                    </Resizable>
-                </React.Fragment>
+                <div className="mx_RoomSublist_tiles" ref={this.tilesRef}>
+                    {visibleTiles}
+                </div>
             );
         } else if (this.props.showSkeleton && this.state.isExpanded) {
             content = <div className="mx_RoomSublist_skeletonUI" />;

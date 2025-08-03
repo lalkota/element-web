@@ -220,6 +220,8 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
                     active: activeItem === "chats",
                     onClick: () => {
                         setActiveItem("chats");
+                        // Dispatch action to handle chat navigation
+                        dis.dispatch({ action: "view_chats" });
                     },
                 },
                 {

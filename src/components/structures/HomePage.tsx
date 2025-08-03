@@ -96,9 +96,13 @@ const HomePage: React.FC<IProps> = ({ justRegistered = false }) => {
     }
 
     let introSection: JSX.Element;
-    if (justRegistered || !OwnProfileStore.instance.getHttpAvatarUrl(parseInt(AVATAR_SIZE, 10))) {
+    const hasAvatar = !!OwnProfileStore.instance.getHttpAvatarUrl(parseInt(AVATAR_SIZE, 10));
+    
+    if (justRegistered || hasAvatar) {
+        // Show welcome section with avatar when user just registered or has an avatar
         introSection = <UserWelcomeTop />;
     } else {
+        // Show default logo and welcome message for users without avatar
         const brandingConfig = SdkConfig.getObject("branding");
         const logoUrl = brandingConfig?.get("auth_header_logo_url") ?? "themes/element/img/logos/element-logo.svg";
 

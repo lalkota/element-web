@@ -16,8 +16,9 @@ Please see LICENSE files in the repository root for full details.
     .mx_LegacyRoomListHeader_contextLessTitle,
     .mx_LegacyRoomListHeader_contextMenuButton {
         font: var(--cpd-font-heading-md-semibold);
+        font-size: 16px;
         color: var(--cpd-color-text-primary);
-        padding: 8px 32px 8px 0;
+        padding: 0 32px 0 0;
         position: relative;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -40,7 +41,7 @@ Please see LICENSE files in the repository root for full details.
             content: "";
             width: 20px;
             height: 20px;
-            top: 3px;
+            top: 0;
             right: 0;
             position: absolute;
             mask-position: center;
@@ -75,6 +76,7 @@ Please see LICENSE files in the repository root for full details.
         justify-content: center;
         cursor: pointer;
         transition: all 0.2s ease;
+        display: none;
 
         &::before {
             content: "";
