@@ -10,8 +10,6 @@ Please see LICENSE files in the repository root for full details.
 
 import { type Room } from "matrix-js-sdk/src/matrix";
 import classNames from "classnames";
-import { Resizable } from "re-resizable";
-import { type Direction } from "re-resizable/lib/resizer";
 import React, { type JSX, type ComponentType, createRef, type ReactComponentElement, type ReactNode } from "react";
 
 import { polyfillTouchEvent } from "../../../@types/polyfill";
@@ -286,38 +284,6 @@ export default class RoomSublist extends React.Component<IProps, IState> {
         }
     };
 
-    private applyHeightChange(newHeight: number): void {
-        const heightInTiles = Math.ceil(this.layout.pixelsToTiles(newHeight - this.padding));
-        this.layout.visibleTiles = Math.min(this.numTiles, heightInTiles);
-    }
-
-    private onResize = (
-        e: MouseEvent | TouchEvent,
-        travelDirection: Direction,
-        refToElement: HTMLElement,
-        delta: ResizeDelta,
-    ): void => {
-        const newHeight = this.heightAtStart + delta.height;
-        this.applyHeightChange(newHeight);
-        this.setState({ height: newHeight });
-    };
-
-    private onResizeStart = (): void => {
-        this.heightAtStart = this.state.height;
-        this.setState({ isResizing: true });
-    };
-
-    private onResizeStop = (
-        e: MouseEvent | TouchEvent,
-        travelDirection: Direction,
-        refToElement: HTMLElement,
-        delta: ResizeDelta,
-    ): void => {
-        const newHeight = this.heightAtStart + delta.height;
-        this.applyHeightChange(newHeight);
-        this.setState({ isResizing: false, height: newHeight });
-    };
-
     private onOpenMenuClick = (ev: ButtonEvent): void => {
         ev.preventDefault();
         ev.stopPropagation();
@@ -465,10 +431,15 @@ export default class RoomSublist extends React.Component<IProps, IState> {
     };
 
     private renderVisibleTiles(): React.ReactElement[] {
+        if (!this.state.isExpanded && !this.props.forceExpanded) {
+            // don't waste time on rendering
+            return [];
+        }
+
         const tiles: React.ReactElement[] = [];
 
         if (this.state.rooms) {
-            // Always render all rooms without any slicing
+            // Always render all rooms
             for (const room of this.state.rooms) {
                 tiles.push(
                     <RoomTile
@@ -486,6 +457,8 @@ export default class RoomSublist extends React.Component<IProps, IState> {
             // HACK: We break typing here, but this 'extra tiles' property shouldn't exist.
             (tiles as any[]).push(...this.extraTiles);
         }
+
+        // Always return all tiles
 
         return tiles;
     }
@@ -676,6 +649,7 @@ export default class RoomSublist extends React.Component<IProps, IState> {
         if (this.state.roomsLoading) {
             content = <div className="mx_RoomSublist_skeletonUI" />;
         } else if (visibleTiles.length > 0) {
+            // Simple rendering of all tiles without resizing or show more/less buttons
             content = (
                 <div className="mx_RoomSublist_tiles" ref={this.tilesRef}>
                     {visibleTiles}

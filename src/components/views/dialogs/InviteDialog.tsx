@@ -59,6 +59,9 @@ import {
 } from "../../../utils/direct-messages";
 import { InviteKind } from "./InviteDialogTypes";
 import Modal from "../../../Modal";
+import InfoDialog from "../dialogs/InfoDialog";
+import ErrorDialog from "../dialogs/ErrorDialog";
+import CopyIcon from "@vector-im/compound-design-tokens/assets/web/icons/copy";
 import dis from "../../../dispatcher/dispatcher";
 import { privateShouldBeEncrypted } from "../../../utils/rooms";
 import { type NonEmptyArray } from "../../../@types/common";
@@ -74,6 +77,27 @@ const makeCustomRoomPermalink = (roomId: string): string => {
     const baseUrl = "https://web.meetxcyberx.com";
     const encodedRoomId = encodeURIComponent(roomId);
     return `${baseUrl}/#/room/${encodedRoomId}`;
+};
+
+const copyRoomLinkToClipboard = (roomId: string): void => {
+    const permalink = makeCustomRoomPermalink(roomId);
+    navigator.clipboard.writeText(permalink).then(
+        () => {
+            Modal.createDialog(InfoDialog, {
+                title: "Link copied",
+                description: "Room link has been copied to clipboard",
+                button: "OK",
+                hasCloseButton: true,
+            });
+        },
+        (err) => {
+            console.error("Failed to copy room link: ", err);
+            Modal.createDialog(ErrorDialog, {
+                title: "Failed to copy",
+                description: "Could not copy the room link to clipboard",
+            });
+        }
+    );
 };
 
 const extractTargetUnknownProfiles = async (
@@ -1369,10 +1393,15 @@ export default class InviteDialog extends React.PureComponent<Props, IInviteDial
                 {},
                 {
                     userId: () => (userId),
-                    a: (sub) => (
-                        <a href={makeCustomRoomPermalink(roomId)} rel="noreferrer noopener" target="_blank">
-                            {sub}
-                        </a>
+                    button: (sub) => (
+                            <AccessibleButton 
+                                className="mx_InviteDialog_copyButton" 
+                                onClick={() => copyRoomLinkToClipboard(roomId)}
+                                title={_t("action|copy")}
+                                element="span"
+                            >
+                               {sub} <CopyIcon width="16px" height="16px" />
+                            </AccessibleButton>
                     ),
                 },
             );

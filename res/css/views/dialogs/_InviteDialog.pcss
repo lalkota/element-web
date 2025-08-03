@@ -265,7 +265,22 @@ Please see LICENSE files in the repository root for full details.
 }
 
 .mx_InviteDialog_helpText {
-    margin: 0;
+    margin-top: 4px;
+}
+
+.mx_InviteDialog_copyButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    vertical-align: middle;
+    color: var(--cpd-color-bg-action-primary-rest);
+    background-color: transparent;
+    transition: background-color 0.1s ease-in-out;
+}
+
+.mx_InviteDialog_copyButton:hover {
+    color: var(--cpd-color-bg-action-primary-hovered);
 }
 
 .mx_InviteDialog_dialPad {

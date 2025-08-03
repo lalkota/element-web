@@ -618,13 +618,8 @@ export default class LegacyRoomList extends React.PureComponent<IProps, IState> 
                 alwaysVisible = false;
             }
 
-            let forceExpanded = false;
-            if (
-                (this.props.activeSpace === MetaSpace.Favourites && orderedTagId === DefaultTagID.Favourite) ||
-                (this.props.activeSpace === MetaSpace.People && orderedTagId === DefaultTagID.DM)
-            ) {
-                forceExpanded = true;
-            }
+            // Allow all sections to be collapsible regardless of active space
+            const forceExpanded = false;
             // The cost of mounting/unmounting this component offsets the cost
             // of keeping it in the DOM and hiding it when it is not required
             return (

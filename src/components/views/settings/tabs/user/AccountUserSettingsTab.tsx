@@ -139,13 +139,25 @@ const AccountUserSettingsTab: React.FC<IProps> = ({ closeSettingsFn }) => {
         );
 
         let errorMessageToDisplay = errorMessage;
-        if (underlyingError instanceof HTTPError && underlyingError.httpStatus === 403) {
-            errorMessageToDisplay = _t("settings|general|error_password_change_403");
-        } else if (underlyingError instanceof HTTPError) {
-            errorMessageToDisplay = _t("settings|general|error_password_change_http", {
-                errorMessage,
-                httpStatus: underlyingError.httpStatus,
-            });
+        
+        // Check for specific error conditions
+        if (underlyingError instanceof HTTPError) {
+            if (underlyingError.httpStatus === 401) {
+                // 401 typically means incorrect current password
+                // We'll show a user-friendly message for incorrect password
+                // Using a direct string here since we don't have a specific translation key for this yet
+                // In a production environment, this should be added to the translation files
+                errorMessageToDisplay = "The current password you entered is incorrect. Please try again.";
+            } else if (underlyingError.httpStatus === 403) {
+                // Using the existing translation key for 403 errors
+                errorMessageToDisplay = _t("settings|general|error_password_change_403");
+            } else {
+                // Using the existing translation key for HTTP errors
+                errorMessageToDisplay = _t("settings|general|error_password_change_http", {
+                    errorMessage,
+                    httpStatus: underlyingError.httpStatus,
+                });
+            }
         }
 
         // TODO: Figure out a design that doesn't involve replacing the current dialog

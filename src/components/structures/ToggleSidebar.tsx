@@ -21,6 +21,7 @@ import SettingsStore from "../../settings/SettingsStore";
 import { SettingLevel } from "../../settings/SettingLevel";
 import { findHighContrastTheme, isHighContrastTheme } from "../../theme";
 import { MatrixClientPeg } from "../../MatrixClientPeg";
+import { MatrixEvent } from "matrix-js-sdk/src/matrix";
 import { OwnProfileStore } from "../../stores/OwnProfileStore";
 import { UPDATE_EVENT } from "../../stores/AsyncStore";
 import BaseAvatar from "../views/avatars/BaseAvatar";
@@ -123,8 +124,30 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
         // Listen for room list updates
         RoomListStore.instance.on(LISTS_UPDATE_EVENT, updateRooms);
 
+        // Listen for room receipt events to update unread counts
+        const onRoomReceipt = (event: MatrixEvent, room: Room) => {
+            // Check if this receipt is for the current user
+            const myUserId = MatrixClientPeg.get().getUserId();
+            const content = event.getContent();
+            const receiptType = Object.keys(content)[0];
+            
+            // Only update if this is a read receipt
+            if (receiptType === "m.read" || receiptType === "m.read.private") {
+                const userIds = Object.keys(content[receiptType]);
+                
+                // If this receipt is for the current user, update the rooms
+                if (userIds.includes(myUserId)) {
+                    updateRooms();
+                }
+            }
+        };
+
+        const client = MatrixClientPeg.get();
+        client.on("Room.receipt", onRoomReceipt);
+
         return () => {
             RoomListStore.instance.off(LISTS_UPDATE_EVENT, updateRooms);
+            client.removeListener("Room.receipt", onRoomReceipt);
         };
     }, []);
 

@@ -45,11 +45,48 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
         if (!room) return;
 
         setLoading(true);
-        const timeline = room.getLiveTimeline();
-        const events = timeline.getEvents();
-        
+        const client = MatrixClientPeg.get();
         const files: FileEvent[] = [];
         
+        try {
+            // Get room messages with a larger limit to ensure we capture files
+            // Use the room's pagination API to get more events
+            const limit = 500; // Fetch more messages to find files
+            
+            // First try to get events from the current timeline
+            const timeline = room.getLiveTimeline();
+            const currentEvents = timeline.getEvents();
+            
+            // Process current timeline events
+            processEvents(currentEvents, files);
+            
+            // Then fetch more historical events if needed
+            if (currentEvents.length < 100 || files.length < 10) {
+                // Only fetch more if we don't have many events or files yet
+                try {
+                    console.log(`Fetching more events for room ${room.roomId}`);
+                    // Use the client's scrollback API to get more events
+                    const moreEvents = await client.scrollback(room, limit);
+                    if (moreEvents && moreEvents.length > 0) {
+                        processEvents(moreEvents, files);
+                    }
+                } catch (error) {
+                    console.error("Error fetching more events:", error);
+                }
+            }
+        } catch (error) {
+            console.error("Error loading files:", error);
+        } finally {
+            // Sort by timestamp (newest first)
+            files.sort((a, b) => b.timestamp - a.timestamp);
+            
+            setFileEvents(files);
+            setLoading(false);
+        }
+    }, [room]);
+    
+    // Helper function to process events and extract file information
+    const processEvents = (events: MatrixEvent[], files: FileEvent[]) => {
         for (const event of events) {
             if (event.getType() === EventType.RoomMessage) {
                 const content = event.getContent() as any;
@@ -80,13 +117,7 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
                 }
             }
         }
-        
-        // Sort by timestamp (newest first)
-        files.sort((a, b) => b.timestamp - a.timestamp);
-        
-        setFileEvents(files);
-        setLoading(false);
-    }, [room]);
+    };
 
     useEffect(() => {
         loadFiles();
