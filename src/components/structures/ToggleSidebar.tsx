@@ -61,6 +61,49 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
     const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
     const [userId, setUserId] = useState<string>("");
     const [userPresence, setUserPresence] = useState<string>("offline");
+    
+    // Sync active item with URL hash
+    useEffect(() => {
+        // Set initial active item based on current URL
+        const syncActiveItemWithUrl = () => {
+            const hash = window.location.hash.toLowerCase();
+            
+            // Check for home page URLs
+            if (hash === "#/home" || hash === "#/" || hash === "") {
+                setActiveItem("home");
+            } 
+            // Check for room URLs
+            else if (hash.startsWith("#/room/")) {
+                // For room URLs, we'll set the active item to "chats" since we want
+                // the Chats button to be highlighted when viewing any room
+                setActiveItem("chats");
+            }
+            // Check for feature URLs
+            else if (hash.includes("meet")) {
+                setActiveItem("meet");
+            }
+            else if (hash.includes("calendar")) {
+                setActiveItem("calendar");
+            }
+            else if (hash.includes("room_feature")) {
+                setActiveItem("room");
+            }
+        };
+        
+        // Set initial state
+        syncActiveItemWithUrl();
+        
+        // Listen for hash changes
+        const handleHashChange = () => {
+            syncActiveItemWithUrl();
+        };
+        
+        window.addEventListener("hashchange", handleHashChange);
+        
+        return () => {
+            window.removeEventListener("hashchange", handleHashChange);
+        };
+    }, []);
 
     const handleToggle = (): void => {
         onToggle(!isCollapsed);
@@ -143,11 +186,12 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
         };
 
         const client = MatrixClientPeg.get();
-        client.on("Room.receipt", onRoomReceipt);
+        // Use string literal with type assertion
+        client?.on("Room.receipt" as any, onRoomReceipt);
 
         return () => {
             RoomListStore.instance.off(LISTS_UPDATE_EVENT, updateRooms);
-            client.removeListener("Room.receipt", onRoomReceipt);
+            client?.removeListener("Room.receipt" as any, onRoomReceipt);
         };
     }, []);
 

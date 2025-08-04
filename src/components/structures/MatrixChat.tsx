@@ -1609,8 +1609,8 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
         dis.dispatch({ action: Action.ViewHomePage });
         
         // Show error to user
-        const title = _t("Failed to load room");
-        const description = _t("The room could not be loaded. You have been taken to your home page.");
+        const title = "Failed to load room";
+        const description = "The room could not be loaded. You have been taken to your home page.";
         
         Modal.createDialog(ErrorDialog, { title, description });
     }

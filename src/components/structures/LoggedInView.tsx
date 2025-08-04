@@ -412,7 +412,45 @@ class LoggedInView extends React.Component<IProps, IState> {
                         scrollDelay: 100, // Ensure room is rendered before scrolling
                     });
                 } else {
-                    // If no last room, go to home page
+                    // If no last room, try to load the first available chat
+                    const orderedLists = RoomListStore.instance.orderedLists;
+                    
+                    // First try direct messages
+                    const dmRooms = orderedLists[DefaultTagID.DM] || [];
+                    if (dmRooms.length > 0) {
+                        // Use the first DM room
+                        const firstRoom = dmRooms[0];
+                        this.lastRoomId = firstRoom.roomId;
+                        localStorage.setItem("mx_last_room_id", firstRoom.roomId);
+                        
+                        dis.dispatch({
+                            action: Action.ViewRoom,
+                            room_id: firstRoom.roomId,
+                        });
+                        return;
+                    }
+                    
+                    // If no DMs, try regular rooms
+                    const regularRooms = [
+                        ...(orderedLists[DefaultTagID.Favourite] || []),
+                        ...(orderedLists[DefaultTagID.Untagged] || []),
+                        ...(orderedLists[DefaultTagID.LowPriority] || [])
+                    ];
+                    
+                    if (regularRooms.length > 0) {
+                        // Use the first regular room
+                        const firstRoom = regularRooms[0];
+                        this.lastRoomId = firstRoom.roomId;
+                        localStorage.setItem("mx_last_room_id", firstRoom.roomId);
+                        
+                        dis.dispatch({
+                            action: Action.ViewRoom,
+                            room_id: firstRoom.roomId,
+                        });
+                        return;
+                    }
+                    
+                    // If no rooms at all, go to home page
                     dis.dispatch({ action: Action.ViewHomePage });
                 }
                 break;
