@@ -19,6 +19,7 @@ import { UnwrappedEventTile } from "../views/rooms/EventTile";
 import { _t } from "../../languageHandler";
 import SdkConfig from "../../SdkConfig";
 import { useScopedRoomContext } from "../../contexts/ScopedRoomContext.tsx";
+import { RoomTabProvider } from "../../contexts/RoomTabContext";
 
 interface Props {
     roomView: RefObject<HTMLElement | null>;
@@ -38,7 +39,9 @@ export const WaitingForThirdPartyRoomView: React.FC<Props> = ({ roomView, resize
     return (
         <div className="mx_RoomView mx_RoomView--local">
             <ErrorBoundary>
-                <RoomHeader room={context.room!} />
+                <RoomTabProvider>
+                    <RoomHeader room={context.room!} />
+                </RoomTabProvider>
                 <main className="mx_RoomView_body" ref={roomView}>
                     <div className="mx_RoomView_timeline">
                         <ScrollPanel className="mx_RoomView_messagePanel" resizeNotifier={resizeNotifier}>

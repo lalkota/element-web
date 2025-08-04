@@ -319,7 +319,9 @@ function LocalRoomView(props: LocalRoomViewProps): ReactElement {
     return (
         <div className="mx_RoomView mx_RoomView--local">
             <ErrorBoundary>
-                <RoomHeader room={room} />
+                <RoomTabProvider>
+                    <RoomHeader room={room} />
+                </RoomTabProvider>
                 <main className="mx_RoomView_body" ref={props.roomView} aria-label={_t("room|room_content")}>
                     <FileDropTarget parent={props.roomView.current} onFileDrop={props.onFileDrop} />
                     <div className="mx_RoomView_timeline">
@@ -354,7 +356,9 @@ function LocalRoomCreateLoader(props: ILocalRoomCreateLoaderProps): ReactElement
     return (
         <div className="mx_RoomView mx_RoomView--local">
             <ErrorBoundary>
-                <RoomHeader room={props.localRoom} />
+                <RoomTabProvider>
+                    <RoomHeader room={props.localRoom} />
+                </RoomTabProvider>
                 <div className="mx_RoomView_body">
                     <LargeLoader text={text} />
                 </div>
@@ -1405,7 +1409,19 @@ export class RoomView extends React.Component<IRoomProps, IRoomState> {
         const crypto = this.context.client?.getCrypto();
         if (!crypto || !roomId) return false;
 
-        return await crypto.isEncryptionEnabledInRoom(roomId);
+        // Ensure roomId has the correct format with leading '!' sigil
+        // This prevents the "leading sigil is incorrect or missing" error
+        if (!roomId.startsWith('!')) {
+            console.warn(`Invalid room ID format: ${roomId}`);
+            return false;
+        }
+
+        try {
+            return await crypto.isEncryptionEnabledInRoom(roomId);
+        } catch (error) {
+            console.error("Error checking room encryption status:", error);
+            return false;
+        }
     }
 
     private async calculateRecommendedVersion(room: Room): Promise<void> {

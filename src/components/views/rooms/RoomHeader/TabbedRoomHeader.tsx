@@ -14,6 +14,7 @@ import RoomHeader from "./RoomHeader";
 import { _t } from "../../../../languageHandler";
 import { type IOOBData } from "../../../../stores/ThreepidInviteStore";
 import AccessibleButton from "../../elements/AccessibleButton";
+import { RoomTabProvider } from "../../../../contexts/RoomTabContext";
 
 export enum RoomContentTab {
     Chat = "chat",
@@ -57,11 +58,13 @@ export default function TabbedRoomHeader({
 
     return (
         <div className="mx_TabbedRoomHeader">
-            <RoomHeader
-                room={room}
-                additionalButtons={additionalButtons}
-                oobData={oobData}
-            />
+            <RoomTabProvider>
+                <RoomHeader
+                    room={room}
+                    additionalButtons={additionalButtons}
+                    oobData={oobData}
+                />
+            </RoomTabProvider>
             <div className="mx_TabbedRoomHeader_tabs">
                 {tabs.map((tab) => {
                     return (
