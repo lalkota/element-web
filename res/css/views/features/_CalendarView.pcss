@@ -1,0 +1,83 @@
+/*
+Copyright 2024 New Vector Ltd.
+
+SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Commercial
+Please see LICENSE files in the repository root for full details.
+*/
+
+.mx_CalendarView {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    background-color: var(--cpd-color-bg-canvas-default);
+}
+
+.mx_CalendarView_header {
+    padding: 24px;
+    border-bottom: 1px solid var(--cpd-color-border-subtle);
+}
+
+.mx_CalendarView_header h1 {
+    margin: 0;
+    font-size: var(--cpd-font-size-heading-lg);
+    font-weight: var(--cpd-font-weight-semibold);
+    color: var(--cpd-color-text-primary);
+}
+
+.mx_CalendarView_content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.mx_CalendarView_placeholder {
+    max-width: 500px;
+    text-align: center;
+    padding: 32px;
+    background-color: var(--cpd-color-bg-subtle);
+    border-radius: 8px;
+}
+
+.mx_CalendarView_placeholderIcon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    background-color: var(--cpd-color-bg-subtle-secondary);
+    border-radius: 50%;
+    position: relative;
+}
+
+.mx_CalendarView_placeholderIcon::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background-color: var(--cpd-color-icon-tertiary);
+    mask-image: url("$(res)/img/element-icons/roomlist/calendar.svg");
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+}
+
+.mx_CalendarView_placeholder h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: var(--cpd-font-size-heading-md);
+    font-weight: var(--cpd-font-weight-semibold);
+    color: var(--cpd-color-text-primary);
+}
+
+.mx_CalendarView_placeholder p {
+    margin-bottom: 16px;
+    color: var(--cpd-color-text-secondary);
+}
+
+.mx_CalendarView_placeholder .mx_AccessibleButton_kind_primary {
+    margin-top: 16px;
+}

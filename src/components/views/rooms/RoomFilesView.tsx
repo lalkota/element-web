@@ -446,14 +446,14 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
                                             >
                                                 <img src={DownloadIcon} alt="Download" />
                                             </button>
-                                            <button
+                                            {/* <button
                                                 onClick={() => handleShare(fileEvent)}
                                                 aria-label="Share"
                                                 title="Share"
                                                 className="mx_RoomFilesView_actionButton"
                                             >
                                                 <img src={ShareIcon} alt="Share" />
-                                            </button>
+                                            </button> */}
                                             <button
                                                 onClick={() => handleInfo(fileEvent)}
                                                 aria-label="Info"

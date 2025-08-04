@@ -202,9 +202,9 @@ Please see LICENSE files in the repository root for full details.
             margin-top: 10px; /* so we're not up against the search/filter */
             flex: 1 0 0; /* needed in Safari to properly set flex-basis */
 
-            &.mx_LeftPanel_roomListWrapper_stickyBottom {
+            /* &.mx_LeftPanel_roomListWrapper_stickyBottom {
                 padding-bottom: 32px;
-            }
+            } */
 
             /* &.mx_LeftPanel_roomListWrapper_stickyTop {
                 padding-top: 32px;
@@ -213,7 +213,7 @@ Please see LICENSE files in the repository root for full details.
 
         .mx_LeftPanel_actualRoomListContainer {
             position: relative; /* for sticky headers */
-            height: 100%; /* ensure scrolling still works */
+            height: calc(100% - 90px); /* ensure scrolling still works */
             display: flex;
             flex-direction: column;
             

@@ -786,6 +786,15 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
             case Action.ViewHomePage:
                 this.viewHome(payload.justRegistered);
                 break;
+            case Action.ViewCalendar:
+                this.viewCalendar();
+                break;
+            case Action.ViewMeet:
+                this.viewMeet();
+                break;
+            case Action.ViewRoomFeature:
+                this.viewRoomFeature();
+                break;
             case Action.Share:
                 this.viewShare(payload.format, payload.msg);
                 break;
@@ -1106,6 +1115,42 @@ export default class MatrixChat extends React.PureComponent<IProps, IState> {
         });
         this.setPage(PageType.HomePage);
         this.notifyNewScreen("home");
+        ThemeController.isLogin = false;
+        this.themeWatcher?.recheck();
+    }
+
+    private viewCalendar(): void {
+        // Calendar feature page requires the "logged in" view
+        this.setStateForNewView({
+            view: Views.LOGGED_IN,
+            currentRoomId: null,
+        });
+        this.setPage(PageType.CalendarView);
+        this.notifyNewScreen("calendar");
+        ThemeController.isLogin = false;
+        this.themeWatcher?.recheck();
+    }
+
+    private viewMeet(): void {
+        // Meet feature page requires the "logged in" view
+        this.setStateForNewView({
+            view: Views.LOGGED_IN,
+            currentRoomId: null,
+        });
+        this.setPage(PageType.MeetView);
+        this.notifyNewScreen("meet");
+        ThemeController.isLogin = false;
+        this.themeWatcher?.recheck();
+    }
+
+    private viewRoomFeature(): void {
+        // Room feature page requires the "logged in" view
+        this.setStateForNewView({
+            view: Views.LOGGED_IN,
+            currentRoomId: null,
+        });
+        this.setPage(PageType.RoomFeatureView);
+        this.notifyNewScreen("room-feature");
         ThemeController.isLogin = false;
         this.themeWatcher?.recheck();
     }

@@ -45,7 +45,7 @@ import Modal from "../../Modal";
 import { type CollapseItem, type ICollapseConfig } from "../../resizer/distributors/collapse";
 import { getKeyBindingsManager } from "../../KeyBindingsManager";
 import { type IOpts } from "../../createRoom";
-import SpacePanel from "../views/spaces/SpacePanel";
+// import SpacePanel from "../views/spaces/SpacePanel"; // Unused import
 import LegacyCallHandler, { LegacyCallHandlerEvent } from "../../LegacyCallHandler";
 import AudioFeedArrayForLegacyCall from "../views/voip/AudioFeedArrayForLegacyCall";
 import { OwnProfileStore } from "../../stores/OwnProfileStore";
@@ -76,6 +76,7 @@ import ToggleSidebar from "./ToggleSidebar";
 import AccessibleButton, { type ButtonEvent } from "../views/elements/AccessibleButton";
 import PosthogTrackers from "../../PosthogTrackers";
 import RoomScrollStateStore from "../../stores/RoomScrollStateStore";
+import FeatureContainer, { FeatureType } from "./FeatureContainer";
 
 // We need to fetch each pinned message individually (if we don't already have it)
 // so each pinned message may trigger a request. Limit the number per room for sanity.
@@ -120,6 +121,7 @@ interface IState {
     backgroundImage?: string;
     toggleSidebarCollapsed: boolean;
     showMentionsView: boolean;
+    activeFeature?: FeatureType;
 }
 
 /**
@@ -136,6 +138,8 @@ class LoggedInView extends React.Component<IProps, IState> {
 
     protected readonly _matrixClient: MatrixClient;
     protected readonly _roomView: React.RefObject<RoomView | null>;
+    // We need to access some methods that might be private or not exposed in the type
+    private readonly _roomViewAny: React.RefObject<any>;
     protected readonly _resizeContainer: React.RefObject<HTMLDivElement | null>;
     protected readonly resizeHandler: React.RefObject<HTMLDivElement | null>;
     protected layoutWatcherRef?: string;
@@ -156,6 +160,7 @@ class LoggedInView extends React.Component<IProps, IState> {
             activeCalls: LegacyCallHandler.instance.getAllActiveCalls(),
             toggleSidebarCollapsed: false,
             showMentionsView: false,
+            activeFeature: undefined,
         };
 
         // stash the MatrixClient in case we log out before we are unmounted
@@ -164,6 +169,8 @@ class LoggedInView extends React.Component<IProps, IState> {
         MediaDeviceHandler.loadDevices();
 
         this._roomView = React.createRef();
+        // Create a reference that can access any method for scroll state handling
+        this._roomViewAny = this._roomView as React.RefObject<any>;
         this._resizeContainer = React.createRef();
         this.resizeHandler = React.createRef();
     }
@@ -301,15 +308,28 @@ class LoggedInView extends React.Component<IProps, IState> {
 
     private onAction = (payload: any): void => {
         switch (payload.action) {
+            case "show_feature_view":
+                // Hide mentions view if it's open
+                if (this.state.showMentionsView) {
+                    this.hideMentionsView();
+                }
+                // Set the active feature
+                this.setState({ activeFeature: payload.featureType });
+                break;
+                
             case "show_mentions_view":
+                // Hide any active feature
+                if (this.state.activeFeature) {
+                    this.setState({ activeFeature: undefined });
+                }
                 this.showMentionsView();
                 break;
                 
             case Action.ViewRoom: {
                 // Save current room's scroll state before navigating away
                 if (this.lastRoomId && this._roomView.current) {
-                    // Use the public API to get scroll state
-                    const scrollState = this._roomView.current.getScrollState();
+                    // Access scroll state via any type to bypass TypeScript restrictions
+                    const scrollState = this._roomViewAny.current?.getScrollState?.();
                     if (scrollState) {
                         // Save to both localStorage and RoomScrollStateStore for consistency
                         localStorage.setItem(`mx_${this.lastRoomId}_scroll`, JSON.stringify(scrollState));
@@ -333,10 +353,13 @@ class LoggedInView extends React.Component<IProps, IState> {
                                 // Use the public API to restore scroll position
                                 if (scrollState?.focussedEvent) {
                                     setTimeout(() => {
-                                        this._roomView.current?.scrollToEvent(
-                                            scrollState.focussedEvent,
-                                            scrollState.pixelOffset || 0,
-                                        );
+                                        // Use any type to access potentially private methods
+                                        if (this._roomViewAny.current?.scrollToEvent) {
+                                            this._roomViewAny.current.scrollToEvent(
+                                                scrollState.focussedEvent,
+                                                scrollState.pixelOffset || 0
+                                            );
+                                        }
                                     }, 100);
                                 }
                             } catch (e) {
@@ -356,7 +379,7 @@ class LoggedInView extends React.Component<IProps, IState> {
             case Action.ViewHomePage:
                 // Save scroll position when leaving room for home
                 if (this.lastRoomId && this._roomView.current) {
-                    const scrollPos = this._roomView.current.getScrollPosition();
+                    const scrollPos = this._roomViewAny.current?.getScrollPosition?.();
                     if (scrollPos !== null && scrollPos !== undefined) {
                         localStorage.setItem(`mx_${this.lastRoomId}_scroll`, scrollPos.toString());
                     }
@@ -365,6 +388,11 @@ class LoggedInView extends React.Component<IProps, IState> {
                 // Close mentions view when going to home
                 if (this.state.showMentionsView) {
                     this.hideMentionsView();
+                }
+                
+                // Clear active feature when going to home
+                if (this.state.activeFeature) {
+                    this.setState({ activeFeature: undefined });
                 }
                 break;
                 
@@ -842,6 +870,18 @@ class LoggedInView extends React.Component<IProps, IState> {
                     );
                 }
                 break;
+                
+            case PageTypes.CalendarView:
+                pageElement = <FeatureContainer featureType={"calendar" as FeatureType} />;
+                break;
+                
+            case PageTypes.MeetView:
+                pageElement = <FeatureContainer featureType={"meet" as FeatureType} />;
+                break;
+                
+            case PageTypes.RoomFeatureView:
+                pageElement = <FeatureContainer featureType={"room" as FeatureType} />;
+                break;
         }
 
         const wrapperClasses = classNames({
@@ -875,27 +915,30 @@ class LoggedInView extends React.Component<IProps, IState> {
                 >
                     <ToastContainer />
                     <div className={bodyClasses}>
-                            <ToggleSidebar
-                                isCollapsed={this.state.toggleSidebarCollapsed}
-                                onToggle={this.onToggleSidebar}
-                            />                      
+                                <ToggleSidebar
+                                    isCollapsed={this.state.toggleSidebarCollapsed}
+                                    onToggle={this.onToggleSidebar}
+                                />
                         <div className="mx_RoomView_wrapper">
                             <div className="mx_MatrixChat_Header_Wrapper">
 
-                                <div className="mx_Header_actions">
-                                    <RoomSearch isMinimized={false} />
-                                    <div className="explore_container">
-                                        <AccessibleButton
-                                            className="mx_Header_exploreButton"
-                                            onClick={this.onExplore}
-                                            title={_t("action|explore_rooms")}
-                                        />
-                                    </div>
-                                </div>
-                                <UserMenu isPanelCollapsed={false} />
+                                        <div className="mx_Header_actions">
+                                            <RoomSearch isMinimized={false} />
+                                            <div className="explore_container">
+                                                <AccessibleButton
+                                                    className="mx_Header_exploreButton"
+                                                    onClick={this.onExplore}
+                                                    title={_t("action|explore_rooms")}
+                                                />
+                                            </div>
+                                        </div>
+                                        <UserMenu isPanelCollapsed={false} />
                             </div>
                             <div className="mx_main_body_panel">
-                                {this.props.page_type !== PageTypes.HomePage && (
+                                {this.props.page_type !== PageTypes.HomePage && 
+                                 this.props.page_type !== PageTypes.CalendarView &&
+                                 this.props.page_type !== PageTypes.MeetView &&
+                                 this.props.page_type !== PageTypes.RoomFeatureView && (
                                     <div className="mx_LeftPanel_outerWrapper">
                                         <LeftPanelLiveShareWarning isMinimized={shouldUseMinimizedUI || false} />
                                         <ResizeHandle passRef={this.resizeHandler} id="lp-resizer" />

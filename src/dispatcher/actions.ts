@@ -386,4 +386,19 @@ export enum Action {
      * Open the create room dialog
      */
     CreateRoom = "view_create_room",
+
+    /**
+     * View the calendar feature page
+     */
+    ViewCalendar = "view_calendar",
+
+    /**
+     * View the meet feature page
+     */
+    ViewMeet = "view_meet",
+
+    /**
+     * View the room feature page
+     */
+    ViewRoomFeature = "view_room_feature",
 }

@@ -253,6 +253,15 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
                     label: "Meet",
                     onClick: () => {
                         setActiveItem("meet");
+                        // Use URL-based navigation
+                        dis.dispatch({
+                            action: "view_meet"
+                        });
+                        // Also dispatch the feature view action for backward compatibility
+                        dis.dispatch({
+                            action: "show_feature_view",
+                            featureType: "meet"
+                        });
                     },
                 },
                 {
@@ -261,6 +270,15 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
                     label: "Room",
                     onClick: () => {
                         setActiveItem("room");
+                        // Use URL-based navigation
+                        dis.dispatch({
+                            action: "view_room_feature"
+                        });
+                        // Also dispatch the feature view action for backward compatibility
+                        dis.dispatch({
+                            action: "show_feature_view",
+                            featureType: "room"
+                        });
                     },
                 },
                 {
@@ -269,6 +287,15 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
                     label: "Calendar",
                     onClick: () => {
                         setActiveItem("calendar");
+                        // Use URL-based navigation
+                        dis.dispatch({
+                            action: "view_calendar"
+                        });
+                        // Also dispatch the feature view action for backward compatibility
+                        dis.dispatch({
+                            action: "show_feature_view",
+                            featureType: "calendar"
+                        });
                     },
                 },
             ],
