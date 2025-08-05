@@ -8,11 +8,6 @@ Please see LICENSE files in the repository root for full details.
 import React, { useState, useEffect, useCallback, useMemo, type JSX } from "react";
 import { Room, MatrixEvent, EventType, MsgType } from "matrix-js-sdk/src/matrix";
 import { MediaEventHelper } from "../../../utils/MediaEventHelper.ts";
-import { Text, IconButton } from "@vector-im/compound-web";
-import DownloadIcon from "../../../../res/img/element-icons/roomlist/document-download.svg";
-import VisibilityOnIcon from "../../../../res/img/element-icons/roomlist/eye.svg";
-import ShareIcon from "../../../../res/img/element-icons/roomlist/forward-square.svg";
-import InfoIcon from "../../../../res/img/element-icons/roomlist/info-circle.svg";
 
 import { mediaFromMxc } from "../../../customisations/Media";
 import { fileSize } from "../../../utils/FileUtils";
@@ -20,6 +15,10 @@ import { formatDate } from "../../../DateUtils";
 import { useRoomSearch } from "../../../contexts/RoomSearchContext";
 import { MatrixClientPeg } from "../../../MatrixClientPeg";
 import RoomSearchHeader from "./RoomSearchHeader";
+import { Text } from "@vector-im/compound-web";
+import DownloadIcon from "../../../../res/img/element-icons/roomlist/document-download.svg";
+import VisibilityOnIcon from "../../../../res/img/element-icons/roomlist/eye.svg";
+import InfoIcon from "../../../../res/img/element-icons/roomlist/info-circle.svg";
 
 interface IProps {
     room: Room;
@@ -38,14 +37,20 @@ interface FileEvent {
 
 export default function RoomFilesView({ room }: IProps): JSX.Element {
     const [fileEvents, setFileEvents] = useState<FileEvent[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
     const { searchQuery, selectedDate } = useRoomSearch();
 
     const loadFiles = useCallback(async () => {
         if (!room) return;
 
-        setLoading(true);
+        setIsLoading(true);
         const client = MatrixClientPeg.get();
+        if (!client) {
+            console.error("Matrix client is not available");
+            setIsLoading(false);
+            return;
+        }
+        
         const files: FileEvent[] = [];
         
         try {
@@ -61,27 +66,24 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
             processEvents(currentEvents, files);
             
             // Then fetch more historical events if needed
-            if (currentEvents.length < 100 || files.length < 10) {
+            if (Array.isArray(currentEvents) && currentEvents.length < 100 || files.length < 10) {
                 // Only fetch more if we don't have many events or files yet
                 try {
                     console.log(`Fetching more events for room ${room.roomId}`);
                     // Use the client's scrollback API to get more events
                     const moreEvents = await client.scrollback(room, limit);
-                    if (moreEvents && moreEvents.length > 0) {
+                    if (moreEvents && Array.isArray(moreEvents) && moreEvents.length > 0) {
                         processEvents(moreEvents, files);
                     }
                 } catch (error) {
                     console.error("Error fetching more events:", error);
                 }
             }
+            setIsLoading(false);
+            setFileEvents(files);
         } catch (error) {
             console.error("Error loading files:", error);
-        } finally {
-            // Sort by timestamp (newest first)
-            files.sort((a, b) => b.timestamp - a.timestamp);
-            
-            setFileEvents(files);
-            setLoading(false);
+            setIsLoading(false);
         }
     }, [room]);
     
@@ -123,59 +125,46 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
         loadFiles();
     }, [loadFiles]);
 
-    // Filter and group files based on search query and selected date
-    const { filteredFiles, groupedFiles } = useMemo(() => {
-        let filtered = fileEvents;
-
-        // Filter by search query
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase();
-            filtered = filtered.filter((file) => 
-                file.filename.toLowerCase().includes(query) ||
-                file.sender.toLowerCase().includes(query) ||
-                (file.mimeType && file.mimeType.toLowerCase().includes(query))
-            );
-        }
-
-        // Filter by selected date
-        if (selectedDate) {
-            const selectedDateObj = new Date(selectedDate);
-            filtered = filtered.filter((file) => {
-                const fileDate = new Date(file.timestamp);
-                return fileDate.toDateString() === selectedDateObj.toDateString();
-            });
-        }
-
-        // Group files by type
-        const groups: { [key: string]: FileEvent[] } = {
-            "Photos and videos": [],
-            "Documents": [],
-            "Other files": []
-        };
-
-        filtered.forEach((file) => {
-            if (file.mimeType?.startsWith("image/") || file.mimeType?.startsWith("video/")) {
-                groups["Photos and videos"].push(file);
-            } else if (
-                file.mimeType?.includes("pdf") ||
-                file.mimeType?.includes("word") ||
-                file.mimeType?.includes("sheet") ||
-                file.mimeType?.includes("presentation") ||
-                file.filename?.match(/\.(doc|docx|pdf|xls|xlsx|ppt|pptx)$/i)
-            ) {
-                groups["Documents"].push(file);
-            } else {
-                groups["Other files"].push(file);
+    // Force re-render when search query or selected date changes
+    useEffect(() => {
+        console.log("Search params changed - query:", searchQuery, "date:", selectedDate);
+    }, [searchQuery, selectedDate]);
+    
+    // Filter files based on search query and selected date
+    const filteredFiles = useMemo(() => {
+        if (!fileEvents.length) return [];
+        
+        console.log(`Filtering ${fileEvents.length} files with query: '${searchQuery}' and date: ${selectedDate}`);
+        
+        return fileEvents.filter(fileEvent => {
+            // Apply search filter if query exists
+            if (searchQuery && searchQuery.trim() !== "") {
+                const query = searchQuery.trim().toLowerCase();
+                const filename = fileEvent.filename.toLowerCase();
+                const sender = fileEvent.sender.toLowerCase();
+                const mimeType = fileEvent.mimeType?.toLowerCase() || "";
+                
+                // Check if any field matches the query
+                if (!filename.includes(query) && 
+                    !sender.includes(query) && 
+                    !mimeType.includes(query)) {
+                    return false;
+                }
             }
+            
+            // Apply date filter if selected
+            if (selectedDate) {
+                const eventDate = new Date(fileEvent.timestamp);
+                const filterDate = new Date(selectedDate);
+                
+                // Compare dates (ignoring time)
+                if (eventDate.toDateString() !== filterDate.toDateString()) {
+                    return false;
+                }
+            }
+            
+            return true;
         });
-
-        // Remove empty groups
-        const nonEmptyGroups = Object.entries(groups).filter(([, files]) => files.length > 0);
-
-        return {
-            filteredFiles: filtered,
-            groupedFiles: nonEmptyGroups
-        };
     }, [fileEvents, searchQuery, selectedDate]);
 
     const downloadFile = useCallback(async (fileEvent: FileEvent): Promise<Blob | null> => {
@@ -267,124 +256,39 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
         }
     }, [downloadFile]);
 
-    const handleShare = useCallback(async (fileEvent: FileEvent) => {
-        try {
-            if (navigator.share && fileEvent.isEncrypted) {
-                // For encrypted files, we need to get the blob first
-                const blob = await downloadFile(fileEvent);
-                
-                if (blob) {
-                    const file = new File([blob], fileEvent.filename, { type: fileEvent.mimeType || 'application/octet-stream' });
-                    await navigator.share({
-                        title: fileEvent.filename,
-                        files: [file],
-                    });
-                }
-            } else if (navigator.share && !fileEvent.isEncrypted) {
-                // For unencrypted files, share the URL
-                await navigator.share({
-                    title: fileEvent.filename,
-                    url: fileEvent.url,
-                });
-            } else {
-                // Fallback to copying URL to clipboard (only works for unencrypted files)
-                if (!fileEvent.isEncrypted) {
-                    await handleCopyLink(fileEvent);
-                } else {
-                    console.log("Cannot share encrypted file - no native share API available");
-                    // TODO: Show appropriate message to user
-                }
-            }
-        } catch (error) {
-            console.log('Error sharing:', error);
-            // Fallback to copying URL to clipboard for unencrypted files
-            if (!fileEvent.isEncrypted) {
-                handleCopyLink(fileEvent);
-            }
-        }
-    }, [downloadFile]);
-
-    const handleCopyLink = useCallback(async (fileEvent: FileEvent) => {
-        if (fileEvent.isEncrypted) {
-            console.log("Cannot copy link for encrypted file");
-            // TODO: Show appropriate message to user
-            return;
-        }
-        
-        try {
-            await navigator.clipboard.writeText(fileEvent.url);
-            // TODO: Show toast notification
-            console.log('Link copied to clipboard');
-        } catch (error) {
-            console.log('Failed to copy link:', error);
-        }
-    }, []);
-
     const handleInfo = useCallback((fileEvent: FileEvent) => {
         // TODO: Open file info modal/dialog
         const fileInfo = {
             name: fileEvent.filename,
-            size: fileEvent.fileSize,
-            type: fileEvent.mimeType,
-            uploaded: new Date(fileEvent.timestamp),
-            sender: fileEvent.sender,
-            url: fileEvent.url,
-            encrypted: fileEvent.isEncrypted
+            size: fileEvent.fileSize ? fileSize(fileEvent.fileSize, { base: 2, standard: "jedec" }) : 'Unknown',
+            type: fileEvent.mimeType || 'Unknown',
+            date: formatDate(new Date(fileEvent.timestamp)),
+            sender: fileEvent.sender
         };
         
-        // For now, log the info (can be replaced with modal later)
-        console.log('File Info:', fileInfo);
-        
-        // Simple alert for demonstration (replace with proper modal)
-        const sizeText = fileEvent.fileSize ? fileSize(fileEvent.fileSize, { base: 2, standard: "jedec" }) : 'Unknown';
-        const dateText = formatDate(new Date(fileEvent.timestamp));
-        const encryptionText = fileEvent.isEncrypted ? 'Yes' : 'No';
-        
-        alert(`File Information:\n\nName: ${fileEvent.filename}\nSize: ${sizeText}\nType: ${fileEvent.mimeType || 'Unknown'}\nUploaded: ${dateText}\nSender: ${fileEvent.sender}\nEncrypted: ${encryptionText}`);
+        // For now, just show an alert with the info
+        alert(`File Information:\n\nName: ${fileInfo.name}\nSize: ${fileInfo.size}\nType: ${fileInfo.type}\nUploaded: ${fileInfo.date}\nSender: ${fileInfo.sender}`);
     }, []);
+    
 
-    const getFileIcon = useCallback((mimeType?: string, filename?: string) => {
-        if (!mimeType && !filename) return "📄";
-        
-        if (mimeType?.startsWith("video/")) return "🎥";
-        if (mimeType?.startsWith("audio/")) return "🎵";
-        if (mimeType?.includes("pdf")) return "📕";
-        if (mimeType?.includes("word") || filename?.endsWith(".doc") || filename?.endsWith(".docx")) return "📝";
-        if (mimeType?.includes("sheet") || filename?.endsWith(".xls") || filename?.endsWith(".xlsx")) return "📊";
-        if (mimeType?.includes("presentation") || filename?.endsWith(".ppt") || filename?.endsWith(".pptx")) return "📈";
-        if (mimeType?.includes("zip") || mimeType?.includes("archive")) return "🗜️";
-        
-        return "📄";
-    }, []);
 
-    if (loading) {
+    if (isLoading) {
         return (
-            <div className="mx_RoomFilesView mx_RoomFilesView--loading">
-                <Text size="md" weight="medium">
-                    Loading...
-                </Text>
-            </div>
-        );
-    }
-
-    if (fileEvents.length === 0) {
-        return (
-            <div className="mx_RoomFilesView">
-                <div className="mx_RoomFilesView mx_RoomFilesView--empty">
-                    <Text size="md" weight="medium" className="mx_RoomFilesView_emptyTitle">
-                        No files yet
-                    </Text>
-                    <Text size="sm" className="mx_RoomFilesView_emptyDescription">
-                        Files shared in this room will appear here
-                    </Text>
+            <div>
+                <RoomSearchHeader room={room} showDateFilter={true} />
+                <div className="mx_RoomFilesView mx_RoomFilesView--loading">
+                    <div className="mx_Spinner">
+                        <div className="mx_Spinner_Msg">Loading files...</div>
+                    </div>
                 </div>
             </div>
         );
     }
-
-    if (filteredFiles.length === 0) {
+    
+    if (!filteredFiles || filteredFiles.length === 0) {
         return (
-            <div className="mx_RoomFilesView">
+            <div>
+                <RoomSearchHeader room={room} showDateFilter={true} />
                 <div className="mx_RoomFilesView mx_RoomFilesView--empty">
                     <Text size="md" weight="medium" className="mx_RoomFilesView_emptyTitle">
                         No files found
@@ -402,72 +306,77 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
             <RoomSearchHeader room={room} showDateFilter={true} />
             <div className="mx_RoomFilesView">
                 <div className="mx_RoomFilesView_content">
-                    {groupedFiles.map(([groupName, files]) => (
-                        <div key={groupName} className="mx_RoomFilesView_section">
-                            <div className="mx_RoomFilesView_sectionHeader">
-                                <h3>{groupName}</h3>
-                                <span className="mx_RoomFilesView_seeAll">See All</span>
-                            </div>
-                            <div className="mx_RoomFilesView_list">
-                                {files.map((fileEvent) => (
-                                    <div
-                                        key={fileEvent.event.getId()}
-                                        className="mx_RoomFilesView_item"
-                                    >
-                                        <div className="mx_RoomFilesView_fileIcon">
-                                            {getFileIcon(fileEvent.mimeType, fileEvent.filename)}
-
-                                        </div>
-                                        <div className="mx_RoomFilesView_fileInfo">
-                                            <p className="mx_RoomFilesView_filename">
-                                                {fileEvent.filename}
-                                            </p>
-                                            <p className="mx_RoomFilesView_metadata">
-                                                <span>{formatDate(new Date(fileEvent.timestamp))}</span>
-                                                {fileEvent.fileSize && (
-                                                    <span>{fileSize(fileEvent.fileSize, { base: 2, standard: "jedec" })}</span>
-                                                )}
-                                            </p>
-                                        </div>
-                                        <div className="mx_RoomFilesView_actions">
-                                            <button
-                                                onClick={() => handleView(fileEvent)}
-                                                aria-label="View"
-                                                title="View"
-                                                className="mx_RoomFilesView_actionButton"
-                                            >
-                                                <img src={VisibilityOnIcon} alt="View" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDownload(fileEvent)}
-                                                aria-label="Download"
-                                                title="Download"
-                                                className="mx_RoomFilesView_actionButton"
-                                            >
-                                                <img src={DownloadIcon} alt="Download" />
-                                            </button>
-                                            {/* <button
-                                                onClick={() => handleShare(fileEvent)}
-                                                aria-label="Share"
-                                                title="Share"
-                                                className="mx_RoomFilesView_actionButton"
-                                            >
-                                                <img src={ShareIcon} alt="Share" />
-                                            </button> */}
-                                            <button
-                                                onClick={() => handleInfo(fileEvent)}
-                                                aria-label="Info"
-                                                title="Info"
-                                                className="mx_RoomFilesView_actionButton"
-                                            >
-                                                <img src={InfoIcon} alt="Info" />
-                                            </button>
+                    <div className="mx_RoomFilesView_section">
+                        <div className="mx_RoomFilesView_sectionHeader">
+                            <Text size="md" weight="medium">Files</Text>
+                        </div>
+                        <div className="mx_RoomFilesView_list">
+                            {filteredFiles.map((fileEvent: FileEvent) => (
+                                <div
+                                    key={fileEvent.event.getId()}
+                                    className="mx_RoomFilesView_item"
+                                >
+                                    <div className="mx_RoomFilesView_fileIcon">
+                                        {(() => {
+                                            const mimeType = fileEvent.mimeType;
+                                            const filename = fileEvent.filename;
+                                            
+                                            if (!mimeType && !filename) return "📄";
+                                            
+                                            if (mimeType?.startsWith("image/")) return "🖼️";
+                                            if (mimeType?.startsWith("video/")) return "🎬";
+                                            if (mimeType?.startsWith("audio/")) return "🎵";
+                                            
+                                            if (mimeType?.includes("pdf") || filename?.endsWith(".pdf")) return "📕";
+                                            if (mimeType?.includes("word") || filename?.match(/\.(doc|docx)$/i)) return "📝";
+                                            if (mimeType?.includes("sheet") || filename?.match(/\.(xls|xlsx)$/i)) return "📊";
+                                            if (mimeType?.includes("presentation") || filename?.match(/\.(ppt|pptx)$/i)) return "📈";
+                                            if (mimeType?.includes("zip") || mimeType?.includes("archive") || filename?.match(/\.(zip|rar|7z|tar|gz)$/i)) return "🗜️";
+                                            
+                                            return "📄";
+                                        })()}
+                                    </div>
+                                    <div className="mx_RoomFilesView_fileInfo">
+                                        <Text size="sm" weight="medium" className="mx_RoomFilesView_filename">
+                                            {fileEvent.filename}
+                                        </Text>
+                                        <div className="mx_RoomFilesView_metadata">
+                                            <Text size="xs">{formatDate(new Date(fileEvent.timestamp))}</Text>
+                                            {fileEvent.fileSize && (
+                                                <Text size="xs">{fileSize(fileEvent.fileSize, { base: 2, standard: "jedec" })}</Text>
+                                            )}
                                         </div>
                                     </div>
-                                ))}
-                            </div>
+                                    <div className="mx_RoomFilesView_actions">
+                                        <button
+                                            onClick={() => handleView(fileEvent)}
+                                            aria-label="View"
+                                            title="View"
+                                            className="mx_RoomFilesView_actionButton"
+                                        >
+                                            <img src={VisibilityOnIcon} alt="View" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDownload(fileEvent)}
+                                            aria-label="Download"
+                                            title="Download"
+                                            className="mx_RoomFilesView_actionButton"
+                                        >
+                                            <img src={DownloadIcon} alt="Download" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleInfo(fileEvent)}
+                                            aria-label="Info"
+                                            title="Info"
+                                            className="mx_RoomFilesView_actionButton"
+                                        >
+                                            <img src={InfoIcon} alt="Info" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
                 </div>
             </div>
         </div>

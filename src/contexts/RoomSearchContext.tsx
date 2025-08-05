@@ -23,9 +23,14 @@ interface RoomSearchProviderProps {
 export function RoomSearchProvider({ children }: RoomSearchProviderProps): React.JSX.Element {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedDate, setSelectedDate] = useState("");
+    
+    // Create a memoized context value to prevent unnecessary re-renders
+    const contextValue = React.useMemo(() => {
+        return { searchQuery, setSearchQuery, selectedDate, setSelectedDate };
+    }, [searchQuery, selectedDate]);
 
     return (
-        <RoomSearchContext.Provider value={{ searchQuery, setSearchQuery, selectedDate, setSelectedDate }}>
+        <RoomSearchContext.Provider value={contextValue}>
             {children}
         </RoomSearchContext.Provider>
     );

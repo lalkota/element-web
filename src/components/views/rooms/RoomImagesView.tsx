@@ -76,17 +76,24 @@ export default function RoomImagesView({ room }: IProps): JSX.Element {
         loadImages();
     }, [loadImages]);
 
+    // Force re-render when search query or selected date changes
+    useEffect(() => {
+        console.log("Images search params changed - query:", searchQuery, "date:", selectedDate);
+    }, [searchQuery, selectedDate]);
+    
     // Filter images based on search query and selected date
     const filteredImages = useMemo(() => {
         let filtered = imageEvents;
+        console.log("Filtering images with query:", searchQuery, "and date:", selectedDate);
 
         // Filter by search query
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase();
+        if (searchQuery && searchQuery.trim()) {
+            const query = searchQuery.toLowerCase().trim();
             filtered = filtered.filter((image) => 
                 image.filename.toLowerCase().includes(query) ||
                 image.sender.toLowerCase().includes(query)
             );
+            console.log("After query filter:", filtered.length, "images remain");
         }
 
         // Filter by selected date
@@ -96,6 +103,7 @@ export default function RoomImagesView({ room }: IProps): JSX.Element {
                 const imageDate = new Date(image.timestamp);
                 return imageDate.toDateString() === selectedDateObj.toDateString();
             });
+            console.log("After date filter:", filtered.length, "images remain");
         }
 
         return filtered;

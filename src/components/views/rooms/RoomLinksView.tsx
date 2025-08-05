@@ -111,18 +111,25 @@ export default function RoomLinksView({ room }: RoomLinksViewProps): JSX.Element
         return Array.from(linkMap.values()).sort((a, b) => b.timestamp - a.timestamp);
     }, [room]);
     
+    // Force re-render when search query or selected date changes
+    React.useEffect(() => {
+        console.log("Links search params changed - query:", searchQuery, "date:", selectedDate);
+    }, [searchQuery, selectedDate]);
+    
     // Filter links based on search query and selected date
     const filteredLinks = useMemo(() => {
         let filtered = links;
+        console.log("Filtering links with query:", searchQuery, "and date:", selectedDate, "total links:", links.length);
         
         // Filter by search query
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase();
+        if (searchQuery && searchQuery.trim()) {
+            const query = searchQuery.toLowerCase().trim();
             filtered = filtered.filter(link => 
                 link.url.toLowerCase().includes(query) ||
                 link.domain.toLowerCase().includes(query) ||
                 link.displayText.toLowerCase().includes(query)
             );
+            console.log("After query filter:", filtered.length, "links remain");
         }
         
         // Filter by selected date
@@ -135,6 +142,7 @@ export default function RoomLinksView({ room }: RoomLinksViewProps): JSX.Element
                 const linkDate = new Date(link.timestamp);
                 return linkDate >= startOfDay && linkDate < endOfDay;
             });
+            console.log("After date filter:", filtered.length, "links remain");
         }
         
         return filtered;

@@ -20,13 +20,20 @@ interface RoomSearchHeaderProps {
 export default function RoomSearchHeader({ room, showDateFilter = true }: RoomSearchHeaderProps): JSX.Element {
     const { searchQuery, setSearchQuery, selectedDate, setSelectedDate } = useRoomSearch();
 
+    // Ensure search query changes are properly handled
+    const handleSearch = (query: string) => {
+        console.log("Search query changed:", query);
+        setSearchQuery(query);
+    };
+
     return (
         <div className="mx_RoomSearchHeader">
             <div className="mx_RoomSearchHeader_search">
                 <SearchBox
                     className="mx_RoomSearchHeader_searchBox"
                     placeholder="Search"
-                    onSearch={setSearchQuery}
+                    onSearch={handleSearch}
+                    onCleared={() => handleSearch("")}
                     initialValue={searchQuery}
                 />
             </div>
