@@ -13,6 +13,7 @@ import { _t } from "../../../languageHandler";
 import Modal from "../../../Modal";
 import { Text } from "@vector-im/compound-web";
 import { Icon as DownloadIcon } from "../../../../res/img/element-icons/roomlist/document-download.svg";
+import { Icon as CancelIcon } from "../../../../res/img/element-icons/cancel.svg";
 
 interface FileModalProps {
     fileEvent: {
@@ -60,7 +61,7 @@ export const FileModal: React.FC<FileModalProps> = ({ fileEvent, onClose }) => {
                 }
             } catch (e) {
                 console.error("Error loading file:", e);
-                if (isMounted) setError(_t("Failed to load file"));
+                if (isMounted) setError("Failed to load file");
             } finally {
                 if (isMounted) setLoading(false);
             }
@@ -97,7 +98,7 @@ export const FileModal: React.FC<FileModalProps> = ({ fileEvent, onClose }) => {
             return (
                 <div className="mx_FileModal_loading">
                     <div className="mx_Spinner" />
-                    <Text>{_t("Loading file...")}</Text>
+                    <Text>Loading file...</Text>
                 </div>
             );
         }
@@ -105,7 +106,7 @@ export const FileModal: React.FC<FileModalProps> = ({ fileEvent, onClose }) => {
         if (error || !objectUrl) {
             return (
                 <div className="mx_FileModal_error">
-                    <Text>{error || _t("Failed to load file")}</Text>
+                    <Text>{error || "Failed to load file"}</Text>
                 </div>
             );
         }
@@ -163,9 +164,9 @@ export const FileModal: React.FC<FileModalProps> = ({ fileEvent, onClose }) => {
             default:
                 return (
                     <div className="mx_FileModal_unsupported">
-                        <Text>{_t("Preview not available")}</Text>
+                        <Text>Preview not available</Text>
                         <Text className="mx_FileModal_downloadPrompt">
-                            {_t("This file type cannot be previewed. Please download the file to view it.")}
+                            This file type cannot be previewed. Please download the file to view it.
                         </Text>
                     </div>
                 );
@@ -184,17 +185,17 @@ export const FileModal: React.FC<FileModalProps> = ({ fileEvent, onClose }) => {
                             href={objectUrl} 
                             download={fileEvent.filename}
                             className="mx_FileModal_downloadButton"
-                            title={_t("Download")}
+                            title="Download"
                         >
                             <DownloadIcon className="mx_FileModal_downloadIcon" />
                         </a>
                     )}
                     <button 
                         onClick={onClose}
-                        className="mx_FileModal_closeButton"
-                        title={_t("Close")}
+                        className="mx_FileModal_closeButton2"
+                        title="Close"
                     >
-                        &times;
+                        <CancelIcon />
                     </button>
                 </div>
             </div>

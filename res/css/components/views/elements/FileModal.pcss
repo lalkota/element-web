@@ -63,10 +63,10 @@ Please see LICENSE files in the repository root for full details.
 }
 
 .mx_FileModal_downloadButton,
-.mx_FileModal_closeButton {
+.mx_FileModal_closeButton2 {
     background: none;
     border: none;
-    padding: 4px 8px;
+    padding: 0 !important;
     border-radius: 4px;
     cursor: pointer;
     color: var(--primary-content);
@@ -74,17 +74,32 @@ Please see LICENSE files in the repository root for full details.
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
 
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+    
     &:hover {
         background-color: var(--background-hover);
     }
 }
 
-.mx_FileModal_closeButton {
-    font-size: 20px;
-    line-height: 1;
+
+.mx_FileModal_closeButton2 {
     width: 32px;
     height: 32px;
+    align-items: center;
+    justify-content: center;
+    svg {
+        width: 24px;
+        height: 24px;
+        fill: var(--primary-content);
+    }
 }
 
 .mx_FileModal_content {
