@@ -149,6 +149,16 @@ Please see LICENSE files in the repository root for full details.
         font: var(--cpd-font-body-md-semibold);
         font-weight: var(--cpd-font-weight-semibold);
         color: $primary-content;
+        max-width: calc(100% - 40px);
+        overflow: hidden;
+    }
+    
+    .mx_MentionsView_roomNameText {
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
     }
 }
 

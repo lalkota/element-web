@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Com
 Please see LICENSE files in the repository root for full details.
 */
 
-import React, { useContext, useEffect, useState, useCallback } from "react";
+import React, { useContext, useEffect, useState, useCallback, type ReactElement } from "react";
 import { Room, MatrixEvent, NotificationCountType, RoomEvent } from "matrix-js-sdk/src/matrix";
 import { logger } from "matrix-js-sdk/src/logger";
 
@@ -36,7 +36,7 @@ interface IMentionsViewProps {
 /**
  * Main panel view for displaying all mentions across rooms with reply capability
  */
-export default function MentionsView({ resizeNotifier, onClose }: IMentionsViewProps): JSX.Element {
+export default function MentionsView({ resizeNotifier, onClose }: IMentionsViewProps): ReactElement {
     const client = useContext(MatrixClientContext);
     const [mentions, setMentions] = useState<MentionItem[]>([]);
     const [loading, setLoading] = useState(true);
@@ -157,7 +157,7 @@ export default function MentionsView({ resizeNotifier, onClose }: IMentionsViewP
         return acc;
     }, {} as Record<string, { room: Room; mentions: MentionItem[] }>);
 
-    const renderRoomSection = (roomData: { room: Room; mentions: MentionItem[] }): JSX.Element => {
+    const renderRoomSection = (roomData: { room: Room; mentions: MentionItem[] }): ReactElement => {
         const { room, mentions: roomMentions } = roomData;
         
         return (
@@ -168,8 +168,8 @@ export default function MentionsView({ resizeNotifier, onClose }: IMentionsViewP
                         size="32px"
                         className="mx_MentionsView_roomAvatar"
                     />
-                    <div className="mx_MentionsView_roomName">
-                        {room.name || "Unnamed room"}
+                    <div className="mx_MentionsView_roomName" title={room.name || "Unnamed room"}>
+                        <span className="mx_MentionsView_roomNameText">{room.name || "Unnamed room"}</span>
                     </div>
                 </div>
                 
@@ -277,7 +277,7 @@ export default function MentionsView({ resizeNotifier, onClose }: IMentionsViewP
         );
     };
 
-    let content: JSX.Element;
+    let content: ReactElement;
 
     if (loading) {
         content = (

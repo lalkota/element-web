@@ -320,7 +320,9 @@ export default function RoomHeader({
                                 aria-level={1}
                                 className="mx_RoomHeader_heading"
                             >
-                                <span className="mx_RoomHeader_truncated mx_lineClamp">{roomName}</span>
+                                <Tooltip label={roomName} placement="bottom">
+                                    <span className="mx_RoomHeader_truncated mx_lineClamp">{roomName}</span>
+                                </Tooltip>
 
                                 {!isDirectMessage && joinRule === JoinRule.Public && (
                                     <Tooltip label={_t("common|public_room")} placement="right">

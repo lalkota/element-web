@@ -19,6 +19,7 @@ import defaultDispatcher from "../../../dispatcher/dispatcher";
 import { Action } from "../../../dispatcher/actions";
 import { _t } from "../../../languageHandler";
 import { ChevronFace, ContextMenuTooltipButton, type MenuProps } from "../../structures/ContextMenu";
+import { Tooltip } from "@vector-im/compound-web";
 import { DefaultTagID, type TagID } from "../../../stores/room-list/models";
 import { type MessagePreview, MessagePreviewStore } from "../../../stores/room-list/MessagePreviewStore";
 import DecoratedRoomAvatar from "../avatars/DecoratedRoomAvatar";
@@ -422,8 +423,10 @@ class RoomTile extends React.PureComponent<Props, State> {
 
         const titleContainer = this.props.isMinimized ? null : (
             <div className="mx_RoomTile_titleContainer">
-                <div title={name} className={titleClasses} tabIndex={-1}>
-                    <span dir="auto">{name}</span>
+                <div className={titleClasses} tabIndex={-1}>
+                    <Tooltip label={name} placement="right">
+                        <span dir="auto" className="mx_RoomTile_name">{name}</span>
+                    </Tooltip>
                     {isDM && dmUsername && (
                         <div className="mx_RoomTile_userId" title={dmUserId || dmUsername}>
                             {dmUsername}
