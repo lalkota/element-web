@@ -115,6 +115,56 @@ export function fileSize(
     byteCount: number,
     options?: FileSizeOptions,
 ): string | number | FileSizeReturnArray | FileSizeReturnObject {
-    const defaultOption: FileSizeOptions = { base: 2, standard: "jedec", ...options };
-    return filesize(byteCount, defaultOption);
+    return filesize(byteCount, {
+        base: 10,
+        standard: 'jedec',
+        ...options,
+    });
+}
+
+type FileType = 'image' | 'pdf' | 'text' | 'video' | 'audio' | 'other';
+
+/**
+ * Determines the type of a file based on its name and MIME type.
+ * @param filename The name of the file
+ * @param mimeType Optional MIME type of the file
+ * @returns The determined file type
+ */
+export function fileType(filename: string, mimeType?: string): FileType {
+    if (!filename) return 'other';
+    
+    const lowerFilename = filename.toLowerCase();
+    
+    // Check MIME type first if available
+    if (mimeType) {
+        if (mimeType.startsWith('image/')) return 'image';
+        if (mimeType === 'application/pdf') return 'pdf';
+        if (mimeType.startsWith('text/')) return 'text';
+        if (mimeType.startsWith('video/')) return 'video';
+        if (mimeType.startsWith('audio/')) return 'audio';
+    }
+    
+    // Fall back to file extension if MIME type is not available or not recognized
+    const extension = lowerFilename.split('.').pop() || '';
+    
+    // Image extensions
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'tiff'];
+    if (imageExtensions.includes(extension)) return 'image';
+    
+    // PDF
+    if (extension === 'pdf') return 'pdf';
+    
+    // Text files
+    const textExtensions = ['txt', 'md', 'markdown', 'json', 'xml', 'html', 'css', 'js', 'ts', 'jsx', 'tsx', 'py', 'java', 'c', 'cpp', 'h', 'hpp', 'cs', 'go', 'rb', 'php', 'sh', 'bat', 'cmd', 'ps1', 'env', 'gitignore', 'yml', 'yaml', 'log'];
+    if (textExtensions.includes(extension)) return 'text';
+    
+    // Video files
+    const videoExtensions = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'wmv', 'flv', 'mkv', 'm4v', '3gp'];
+    if (videoExtensions.includes(extension)) return 'video';
+    
+    // Audio files
+    const audioExtensions = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'wma'];
+    if (audioExtensions.includes(extension)) return 'audio';
+    
+    return 'other';
 }

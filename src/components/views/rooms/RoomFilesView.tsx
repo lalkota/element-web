@@ -19,6 +19,7 @@ import { Text } from "@vector-im/compound-web";
 import DownloadIcon from "../../../../res/img/element-icons/roomlist/document-download.svg";
 import VisibilityOnIcon from "../../../../res/img/element-icons/roomlist/eye.svg";
 import InfoIcon from "../../../../res/img/element-icons/roomlist/info-circle.svg";
+import { showFileModal } from "../elements/FileModal.tsx";
 
 interface IProps {
     room: Room;
@@ -229,32 +230,22 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
         }
     }, [downloadFile]);
 
-    const handleView = useCallback(async (fileEvent: FileEvent) => {
+    const handleView = useCallback((fileEvent: FileEvent) => {
         try {
-            const blob = await downloadFile(fileEvent);
-            
-            if (!blob) {
-                console.error("Failed to download file");
-                // TODO: Show error toast
-                return;
-            }
-            
-            // Create download link
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = fileEvent.filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Clean up the blob URL
-            URL.revokeObjectURL(url);
+            showFileModal({
+                event: fileEvent.event,
+                url: fileEvent.url,
+                filename: fileEvent.filename,
+                fileSize: fileEvent.fileSize,
+                mimeType: fileEvent.mimeType,
+                isEncrypted: fileEvent.isEncrypted,
+            });
         } catch (error) {
-            console.error("Error in handleDownload:", error);
-            // TODO: Show error toast
+            console.error("Error showing file in modal:", error);
+            // Fall back to download if modal fails
+            handleDownload(fileEvent);
         }
-    }, [downloadFile]);
+    }, [handleDownload]);
 
     const handleInfo = useCallback((fileEvent: FileEvent) => {
         // TODO: Open file info modal/dialog
