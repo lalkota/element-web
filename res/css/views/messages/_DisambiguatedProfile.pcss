@@ -19,6 +19,15 @@ Please see LICENSE files in the repository root for full details.
         /* keeps the height in check, important for the bubble apperance */
         line-height: 1;
     }
+    
+    .mx_DisambiguatedProfile_displayNameTruncated {
+        max-width: 240px;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: bottom;
+    }
 
     .mx_DisambiguatedProfile_mxid {
         color: $secondary-content;

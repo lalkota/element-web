@@ -168,7 +168,7 @@ class DMUserTile extends React.PureComponent<IDMUserTileProps> {
             <span className="mx_InviteDialog_userTile">
                 <span className="mx_InviteDialog_userTile_pill">
                     {avatar}
-                    <span className="mx_InviteDialog_userTile_name">{this.props.member.name}</span>
+                    <span className="mx_InviteDialog_userTile_name" title={this.props.member.name}>{this.props.member.name}</span>
                 </span>
                 {closeButton}
             </span>
@@ -1319,7 +1319,7 @@ export default class InviteDialog extends React.PureComponent<Props, IInviteDial
                     {
                         userId: () => {
                             return (
-                                <a href={makeUserPermalink(userId)} rel="noreferrer noopener" target="_blank">
+                                <a href={makeUserPermalink(userId)} rel="noreferrer noopener" target="_blank" className="mx_InviteDialog_userIdLink" title={userId}>
                                     {userId}
                                 </a>
                             );
@@ -1333,7 +1333,7 @@ export default class InviteDialog extends React.PureComponent<Props, IInviteDial
                     {
                         userId: () => {
                             return (
-                                <a href={makeUserPermalink(userId)} rel="noreferrer noopener" target="_blank">
+                                <a href={makeUserPermalink(userId)} rel="noreferrer noopener" target="_blank" className="mx_InviteDialog_userIdLink" title={userId}>
                                     {userId}
                                 </a>
                             );
@@ -1392,7 +1392,6 @@ export default class InviteDialog extends React.PureComponent<Props, IInviteDial
                 helpTextUntranslated,
                 {},
                 {
-                    userId: () => (userId),
                     button: (sub) => (
                             <AccessibleButton 
                                 className="mx_InviteDialog_copyButton" 

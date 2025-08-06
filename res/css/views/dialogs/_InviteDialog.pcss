@@ -15,6 +15,15 @@ Please see LICENSE files in the repository root for full details.
     padding-bottom: $spacing-16;
 }
 
+.mx_InviteDialog_userIdLink {
+    display: inline-block;
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+}
+
 .mx_InviteDialog_addressBar {
     display: flex;
     flex-direction: row;
@@ -168,6 +177,11 @@ Please see LICENSE files in the repository root for full details.
 
         .mx_InviteDialog_userTile_name {
             vertical-align: top;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+            display: inline-block;
         }
 
         .mx_SearchResultAvatar_threepidAvatar {

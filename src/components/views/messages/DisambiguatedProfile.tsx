@@ -69,10 +69,14 @@ export default class DisambiguatedProfile extends React.Component<IProps> {
         });
 
         return (
-            <div className="mx_DisambiguatedProfile" title={withTooltip ? title : undefined} onClick={onClick}>
+            <div className="mx_DisambiguatedProfile" onClick={onClick}>
                 {/* Only show display name in rooms, not in direct messages */}
                 {!isDirectMessage && (
-                    <span className={displayNameClasses} dir="auto">
+                    <span 
+                        className={`${displayNameClasses} mx_DisambiguatedProfile_displayNameTruncated`} 
+                        dir="auto"
+                        title={rawDisplayName}
+                    >
                         {rawDisplayName}
                     </span>
                 )}

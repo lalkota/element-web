@@ -50,7 +50,7 @@ export const WaitingForThirdPartyRoomView: React.FC<Props> = ({ roomView, resize
                                 title={_t("room|waiting_for_join_title", { brand })}
                                 subtitle={_t("room|waiting_for_join_subtitle", { brand })}
                             />
-                            <NewRoomIntro />
+                            {/* <NewRoomIntro /> */}
                             <UnwrappedEventTile mxEvent={inviteEvent} />
                         </ScrollPanel>
                     </div>

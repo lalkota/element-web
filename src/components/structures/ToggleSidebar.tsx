@@ -62,7 +62,7 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
     const [userId, setUserId] = useState<string>("");
     const [userPresence, setUserPresence] = useState<string>("offline");
     
-    // Sync active item with URL hash
+    // Sync active item with URL hash and manage sidebar state
     useEffect(() => {
         // Set initial active item based on current URL
         const syncActiveItemWithUrl = () => {
@@ -77,16 +77,24 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
                 // For room URLs, we'll set the active item to "chats" since we want
                 // the Chats button to be highlighted when viewing any room
                 setActiveItem("chats");
+                // Close sidebar when viewing a room
+                if (!isCollapsed) onToggle(true);
             }
             // Check for feature URLs
             else if (hash.includes("meet")) {
                 setActiveItem("meet");
+                // Close sidebar when viewing meet
+                if (!isCollapsed) onToggle(true);
             }
             else if (hash.includes("calendar")) {
                 setActiveItem("calendar");
+                // Close sidebar when viewing calendar
+                if (!isCollapsed) onToggle(true);
             }
             else if (hash.includes("room_feature")) {
                 setActiveItem("room");
+                // Close sidebar when viewing room feature
+                if (!isCollapsed) onToggle(true);
             }
         };
         
@@ -103,7 +111,7 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
         return () => {
             window.removeEventListener("hashchange", handleHashChange);
         };
-    }, []);
+    }, [isCollapsed, onToggle]);
 
     const handleToggle = (): void => {
         onToggle(!isCollapsed);
@@ -496,8 +504,8 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
                         <div className={`mx_ToggleSidebar_presenceIndicator mx_ToggleSidebar_presenceIndicator--${userPresence}`} />
                     </div>
                     <div className="mx_ToggleSidebar_userInfo">
-                        <span className="mx_ToggleSidebar_userName">{userDisplayName}</span>
-                        <span className="mx_ToggleSidebar_userEmail">
+                        <span className="mx_ToggleSidebar_userName" title={userDisplayName}>{userDisplayName}</span>
+                        <span className="mx_ToggleSidebar_userEmail" title={UserIdentifierCustomisations.getDisplayUserIdentifier(userId, { withDisplayName: false }) || userId}>
                             {UserIdentifierCustomisations.getDisplayUserIdentifier(userId, { withDisplayName: false }) || userId}
                         </span>
                     </div>

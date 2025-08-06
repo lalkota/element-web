@@ -90,14 +90,14 @@ const NewRoomIntro: React.FC = () => {
                     }}
                 />
 
-                <h2>{room.name}</h2>
+                <h2 title={room.name}>{room.name}</h2>
 
                 <p>
                     {_t(
                         introMessage,
                         {},
                         {
-                            displayName: () => <strong>{displayName}</strong>,
+                            displayName: () => <strong title={displayName}>{displayName}</strong>,
                         },
                     )}
                 </p>
@@ -233,7 +233,7 @@ const NewRoomIntro: React.FC = () => {
             <React.Fragment>
                 {avatar}
 
-                <h2>{room.name}</h2>
+                <h2 title={room.name}>{room.name}</h2>
 
                 <p>
                     {createdText}{" "}
@@ -241,7 +241,7 @@ const NewRoomIntro: React.FC = () => {
                         "room|intro|start_of_room",
                         {},
                         {
-                            roomName: () => <strong>{room.name}</strong>,
+                            roomName: () => <strong title={room.name}>{room.name}</strong>,
                         },
                     )}
                 </p>

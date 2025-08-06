@@ -324,12 +324,12 @@ function LocalRoomView(props: LocalRoomViewProps): ReactElement {
                 </RoomTabProvider>
                 <main className="mx_RoomView_body" ref={props.roomView} aria-label={_t("room|room_content")}>
                     <FileDropTarget parent={props.roomView.current} onFileDrop={props.onFileDrop} />
-                    <div className="mx_RoomView_timeline">
+                    {/* <div className="mx_RoomView_timeline">
                         <ScrollPanel className="mx_RoomView_messagePanel" resizeNotifier={props.resizeNotifier}>
                             {encryptionTile}
                             <NewRoomIntro />
                         </ScrollPanel>
-                    </div>
+                    </div> */}
                     {statusBar}
                     {composer}
                 </main>

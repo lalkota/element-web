@@ -48,7 +48,7 @@ Please see LICENSE files in the repository root for full details.
         margin-top: 24px;
         font-size: $font-24px;
         font-weight: var(--cpd-font-weight-semibold);
-        max-width: 100%;
+        max-width: 600px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -58,5 +58,17 @@ Please see LICENSE files in the repository root for full details.
         margin: 0;
         font-size: $font-15px;
         color: $secondary-content;
+        max-width: 600px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        
+        strong {
+            display: inline-block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
+        }
     }
 }

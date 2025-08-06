@@ -649,7 +649,7 @@ const SpotlightDialog: React.FC<IProps> = ({ initialText = "", initialFilter = n
                         {...ariaProperties}
                     >
                         <DecoratedRoomAvatar room={result.room} size={AVATAR_SIZE} tooltipProps={{ tabIndex: -1 }} />
-                        {result.room.name}
+                        <span className="mx_SpotlightDialog_roomName" title={result.room.name}>{result.room.name}</span>
                         <NotificationBadge notification={notification} />
                         <RoomContextDetails
                             id={`mx_SpotlightDialog_button_result_${result.room.roomId}_details`}

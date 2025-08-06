@@ -241,12 +241,21 @@ Please see LICENSE files in the repository root for full details.
                 font-size: $font-15px;
                 line-height: $font-24px;
                 color: $primary-content;
+                
                 position: relative;
                 display: flex;
                 align-items: center;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
+                
+                .mx_SpotlightDialog_roomName {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 250px;
+                    display: inline-block;
+                }
 
                 .mx_SpotlightDialog_option--endAdornment {
                     display: inline-flex;
