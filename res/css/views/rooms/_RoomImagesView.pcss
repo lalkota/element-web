@@ -41,13 +41,17 @@ Please see LICENSE files in the repository root for full details.
     border: 1px solid var(--cpd-color-border-interactive-secondary);
     border-radius: 8px;
     overflow: hidden;
-    cursor: pointer;
+    position: relative;
     transition: all 0.2s ease;
     
     &:hover {
-        border-color: var(--cpd-color-border-interactive-primary);
+        border-color: var(--cpd-color-bg-action-primary-rest);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         transform: translateY(-2px);
+    }
+    
+    &:hover .mx_RoomImagesView_actions {
+        opacity: 1;
     }
 }
 
@@ -59,6 +63,7 @@ Please see LICENSE files in the repository root for full details.
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 
 .mx_RoomImagesView_image {
@@ -97,6 +102,45 @@ Please see LICENSE files in the repository root for full details.
 .mx_RoomImagesView_emptyDescription {
     color: var(--cpd-color-text-secondary);
     max-width: 300px;
+}
+
+/* Action buttons styles */
+.mx_RoomImagesView_actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    background-color: var(--roomlist-bg-color);
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.mx_RoomImagesView_actionButton {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border:none;
+    color: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    border-radius: 4px;
+}
+
+.mx_RoomImagesView_actionButton:hover {
+    background: var(--border-color);
+    color: white;
+}
+
+.mx_RoomImagesView_actionButton svg {
+    width: 16px;
+    height: 16px;
 }
 
 /* Responsive behavior */

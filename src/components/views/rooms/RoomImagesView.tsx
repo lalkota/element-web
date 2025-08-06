@@ -15,6 +15,10 @@ import { formatDate } from "../../../DateUtils";
 import { fileSize } from "../../../utils/FileUtils";
 import { useRoomSearch } from "../../../contexts/RoomSearchContext";
 import RoomSearchHeader from "./RoomSearchHeader";
+import { showFileModal } from "../elements/FileModal.tsx";
+import { Icon as DownloadIcon } from "../../../../res/img/element-icons/roomlist/document-download.svg";
+import { Icon as VisibilityOnIcon } from "../../../../res/img/element-icons/roomlist/eye.svg";
+import { Icon as InfoIcon } from "../../../../res/img/element-icons/roomlist/info-circle.svg";
 
 interface IProps {
     room: Room;
@@ -28,6 +32,8 @@ interface ImageEvent {
     fileSize?: number;
     timestamp: number;
     sender: string;
+    mimeType?: string;
+    isEncrypted: boolean;
 }
 
 export default function RoomImagesView({ room }: IProps): JSX.Element {
@@ -58,8 +64,10 @@ export default function RoomImagesView({ room }: IProps): JSX.Element {
                         thumbnailUrl: thumbnailMedia?.srcHttp || undefined,
                         filename: content.body || "Image",
                         fileSize: content.info?.size,
+                        mimeType: content.info?.mimetype,
                         timestamp: event.getTs(),
                         sender: event.getSender() || "",
+                        isEncrypted: event.isEncrypted(),
                     });
                 }
             }
@@ -109,9 +117,56 @@ export default function RoomImagesView({ room }: IProps): JSX.Element {
         return filtered;
     }, [imageEvents, searchQuery, selectedDate]);
 
-    const handleImageClick = useCallback((imageEvent: ImageEvent) => {
-        // TODO: Open image in lightbox/modal
-        window.open(imageEvent.url, '_blank');
+    const handleView = useCallback((imageEvent: ImageEvent) => {
+        try {
+            showFileModal({
+                event: imageEvent.event,
+                url: imageEvent.url,
+                filename: imageEvent.filename,
+                fileSize: imageEvent.fileSize,
+                mimeType: imageEvent.mimeType,
+                isEncrypted: imageEvent.isEncrypted,
+            });
+        } catch (error) {
+            console.error("Error showing image in modal:", error);
+            // Fall back to opening in new tab if modal fails
+            window.open(imageEvent.url, '_blank');
+        }
+    }, []);
+    
+    const handleDownload = useCallback(async (imageEvent: ImageEvent) => {
+        try {
+            const response = await fetch(imageEvent.url);
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = imageEvent.filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Clean up the blob URL
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error in handleDownload:", error);
+            // Fallback to direct download
+            window.open(imageEvent.url, '_blank');
+        }
+    }, []);
+    
+    const handleInfo = useCallback((imageEvent: ImageEvent) => {
+        const fileInfo = {
+            name: imageEvent.filename,
+            size: imageEvent.fileSize ? fileSize(imageEvent.fileSize, { base: 2, standard: "jedec" }) : 'Unknown',
+            type: imageEvent.mimeType || 'Image',
+            date: formatDate(new Date(imageEvent.timestamp)),
+            sender: imageEvent.sender
+        };
+        
+        // For now, just show an alert with the info
+        alert(`Image Information:\n\nName: ${fileInfo.name}\nSize: ${fileInfo.size}\nType: ${fileInfo.type}\nUploaded: ${fileInfo.date}\nSender: ${fileInfo.sender}`);
     }, []);
 
     if (loading) {
@@ -169,7 +224,6 @@ export default function RoomImagesView({ room }: IProps): JSX.Element {
                     <div
                         key={imageEvent.event.getId()}
                         className="mx_RoomImagesView_item"
-                        onClick={() => handleImageClick(imageEvent)}
                     >
                         <div className="mx_RoomImagesView_imageContainer">
                             <img
@@ -177,6 +231,7 @@ export default function RoomImagesView({ room }: IProps): JSX.Element {
                                 alt={imageEvent.filename}
                                 className="mx_RoomImagesView_image"
                                 loading="lazy"
+                                onClick={() => handleView(imageEvent)}
                             />
                         </div>
                         <div className="mx_RoomImagesView_itemInfo">
@@ -189,6 +244,32 @@ export default function RoomImagesView({ room }: IProps): JSX.Element {
                                     <span> • {fileSize(imageEvent.fileSize, { base: 2, standard: "jedec" })}</span>
                                 )}
                             </Text>
+                        </div>
+                        <div className="mx_RoomImagesView_actions">
+                            <button 
+                                className="mx_RoomImagesView_actionButton"
+                                onClick={() => handleView(imageEvent)}
+                                title="View"
+                                aria-label="View image"
+                            >
+                                <VisibilityOnIcon />
+                            </button>
+                            <button 
+                                className="mx_RoomImagesView_actionButton"
+                                onClick={() => handleDownload(imageEvent)}
+                                title="Download"
+                                aria-label="Download image"
+                            >
+                                <DownloadIcon />
+                            </button>
+                            <button 
+                                className="mx_RoomImagesView_actionButton"
+                                onClick={() => handleInfo(imageEvent)}
+                                title="Info"
+                                aria-label="Image information"
+                            >
+                                <InfoIcon />
+                            </button>
                         </div>
                     </div>
                 ))}
