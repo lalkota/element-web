@@ -512,11 +512,9 @@ export class MImageBodyInner extends React.Component<IProps, IState> {
 
         if (!this.props.mediaVisible) {
             img = (
-                <div style={{ width: maxWidth, height: maxHeight }}>
-                    <HiddenMediaPlaceholder onClick={this.onClick}>
-                        {_t("timeline|m.image|show_image")}
-                    </HiddenMediaPlaceholder>
-                </div>
+                <HiddenMediaPlaceholder onClick={this.onClick}>
+                    {_t("timeline|m.image|show_image")}
+                </HiddenMediaPlaceholder>
             );
             showPlaceholder = false; // because we're hiding the image, so don't show the placeholder.
         }
@@ -561,7 +559,11 @@ export class MImageBodyInner extends React.Component<IProps, IState> {
         let thumbnail = (
             <div
                 className="mx_MImageBody_thumbnail_container"
-                style={{ maxHeight, maxWidth, aspectRatio: `${infoWidth}/${infoHeight}` }}
+                style={{
+                    maxHeight: this.props.mediaVisible ? maxHeight : 'auto',
+                    maxWidth: this.props.mediaVisible ? maxWidth : 'auto',
+                    aspectRatio: this.props.mediaVisible ? `${infoWidth}/${infoHeight}` : 'auto'
+                }}
                 tabIndex={tooltipProps ? 0 : undefined}
             >
                 {placeholder}
