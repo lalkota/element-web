@@ -6,8 +6,8 @@ SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Com
 Please see LICENSE files in the repository root for full details.
 */
 
-import React, { type JSX, createRef } from "react";
-import { type MatrixEvent } from "matrix-js-sdk/src/matrix";
+import React, { type JSX, createRef, useState, useEffect } from "react";
+import { type MatrixEvent, Room } from "matrix-js-sdk/src/matrix";
 import { CallErrorCode, CallState } from "matrix-js-sdk/src/webrtc/call";
 import classNames from "classnames";
 
@@ -19,6 +19,8 @@ import AccessibleButton from "../elements/AccessibleButton";
 import InfoTooltip, { InfoTooltipKind } from "../elements/InfoTooltip";
 import { formatPreciseDuration } from "../../../DateUtils";
 import Clock from "../audio_messages/Clock";
+import { MatrixClientPeg } from "../../../MatrixClientPeg";
+import { ElementCall } from "../../../models/Call";
 
 const MAX_NON_NARROW_WIDTH = (450 / 70) * 100;
 
@@ -33,9 +35,10 @@ interface IState {
     silenced: boolean;
     narrow: boolean;
     length: number;
+    canPlaceCall: boolean;
 }
 
-export default class LegacyCallEvent extends React.PureComponent<IProps, IState> {
+class LegacyCallEvent extends React.PureComponent<IProps, IState> {
     private wrapperElement = createRef<HTMLDivElement>();
     private resizeObserver?: ResizeObserver;
 
@@ -47,6 +50,7 @@ export default class LegacyCallEvent extends React.PureComponent<IProps, IState>
             silenced: false,
             narrow: false,
             length: 0,
+            canPlaceCall: false,
         };
     }
 
@@ -57,6 +61,30 @@ export default class LegacyCallEvent extends React.PureComponent<IProps, IState>
 
         this.resizeObserver = new ResizeObserver(this.resizeObserverCallback);
         if (this.wrapperElement.current) this.resizeObserver.observe(this.wrapperElement.current);
+        
+        // Check call permissions
+        this.checkCallPermissions();
+    }
+    
+    private async checkCallPermissions(): Promise<void> {
+        const roomId = this.props.mxEvent.getRoomId();
+        if (!roomId) return;
+        
+        const client = MatrixClientPeg.safeGet();
+        const room = client.getRoom(roomId);
+        if (!room) return;
+        
+        try {
+            // Check if user has permission to create Element calls or edit widgets
+            const [mayCreateElementCalls, mayEditWidgets] = await Promise.all([
+                room.currentState.mayClientSendStateEvent(ElementCall.MEMBER_EVENT_TYPE.name, client),
+                room.currentState.mayClientSendStateEvent("im.vector.modular.widgets", client),
+            ]);
+            
+            this.setState({ canPlaceCall: mayCreateElementCalls || mayEditWidgets });
+        } catch (error) {
+            console.error("Failed to check call permissions:", error);
+        }
     }
 
     public componentWillUnmount(): void {
@@ -86,7 +114,12 @@ export default class LegacyCallEvent extends React.PureComponent<IProps, IState>
         this.setState({ callState: newState });
     };
 
-    private renderCallBackButton(text: string): JSX.Element {
+    private renderCallBackButton(text: string): JSX.Element | null {
+        // Don't render the button if user doesn't have permission to place calls
+        if (!this.state.canPlaceCall) {
+            return null;
+        }
+        
         return (
             <AccessibleButton
                 className="mx_LegacyCallEvent_content_button mx_LegacyCallEvent_content_button_callBack"
@@ -297,3 +330,5 @@ export default class LegacyCallEvent extends React.PureComponent<IProps, IState>
         );
     }
 }
+
+export default LegacyCallEvent;
