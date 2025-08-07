@@ -16,6 +16,7 @@ import { fileSize } from "../../../utils/FileUtils";
 import { useRoomSearch } from "../../../contexts/RoomSearchContext";
 import RoomSearchHeader from "./RoomSearchHeader";
 import { showFileModal } from "../elements/FileModal.tsx";
+import { showFileInfoModal } from "../elements/FileInfoModal.tsx";
 import { Icon as DownloadIcon } from "../../../../res/img/element-icons/roomlist/document-download.svg";
 import { Icon as VisibilityOnIcon } from "../../../../res/img/element-icons/roomlist/eye.svg";
 import { Icon as InfoIcon } from "../../../../res/img/element-icons/roomlist/info-circle.svg";
@@ -157,16 +158,15 @@ export default function RoomImagesView({ room }: IProps): JSX.Element {
     }, []);
     
     const handleInfo = useCallback((imageEvent: ImageEvent) => {
-        const fileInfo = {
-            name: imageEvent.filename,
-            size: imageEvent.fileSize ? fileSize(imageEvent.fileSize, { base: 2, standard: "jedec" }) : 'Unknown',
-            type: imageEvent.mimeType || 'Image',
-            date: formatDate(new Date(imageEvent.timestamp)),
-            sender: imageEvent.sender
-        };
-        
-        // For now, just show an alert with the info
-        alert(`Image Information:\n\nName: ${fileInfo.name}\nSize: ${fileInfo.size}\nType: ${fileInfo.type}\nUploaded: ${fileInfo.date}\nSender: ${fileInfo.sender}`);
+        showFileInfoModal({
+            event: imageEvent.event,
+            filename: imageEvent.filename,
+            fileSize: imageEvent.fileSize,
+            mimeType: imageEvent.mimeType,
+            timestamp: imageEvent.timestamp,
+            sender: imageEvent.sender,
+            isEncrypted: imageEvent.isEncrypted,
+        });
     }, []);
 
     if (loading) {

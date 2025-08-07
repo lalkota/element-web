@@ -20,6 +20,7 @@ import DownloadIcon from "../../../../res/img/element-icons/roomlist/document-do
 import VisibilityOnIcon from "../../../../res/img/element-icons/roomlist/eye.svg";
 import InfoIcon from "../../../../res/img/element-icons/roomlist/info-circle.svg";
 import { showFileModal } from "../elements/FileModal.tsx";
+import { showFileInfoModal } from "../elements/FileInfoModal.tsx";
 
 interface IProps {
     room: Room;
@@ -248,17 +249,15 @@ export default function RoomFilesView({ room }: IProps): JSX.Element {
     }, [handleDownload]);
 
     const handleInfo = useCallback((fileEvent: FileEvent) => {
-        // TODO: Open file info modal/dialog
-        const fileInfo = {
-            name: fileEvent.filename,
-            size: fileEvent.fileSize ? fileSize(fileEvent.fileSize, { base: 2, standard: "jedec" }) : 'Unknown',
-            type: fileEvent.mimeType || 'Unknown',
-            date: formatDate(new Date(fileEvent.timestamp)),
-            sender: fileEvent.sender
-        };
-        
-        // For now, just show an alert with the info
-        alert(`File Information:\n\nName: ${fileInfo.name}\nSize: ${fileInfo.size}\nType: ${fileInfo.type}\nUploaded: ${fileInfo.date}\nSender: ${fileInfo.sender}`);
+        showFileInfoModal({
+            event: fileEvent.event,
+            filename: fileEvent.filename,
+            fileSize: fileEvent.fileSize,
+            mimeType: fileEvent.mimeType,
+            timestamp: fileEvent.timestamp,
+            sender: fileEvent.sender,
+            isEncrypted: fileEvent.isEncrypted,
+        });
     }, []);
     
 

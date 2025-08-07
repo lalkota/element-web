@@ -111,7 +111,7 @@ export default function ToggleSidebar({ isCollapsed, onToggle }: IProps): JSX.El
         return () => {
             window.removeEventListener("hashchange", handleHashChange);
         };
-    }, [isCollapsed, onToggle]);
+    }, []);
 
     const handleToggle = (): void => {
         onToggle(!isCollapsed);

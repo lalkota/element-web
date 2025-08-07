@@ -1,0 +1,77 @@
+/*
+Copyright 2024 New Vector Ltd.
+
+SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Commercial
+Please see LICENSE files in the repository root for full details.
+*/
+
+.mx_FileInfoModal_wrapper .mx_Dialog {
+    width: 500px;
+    max-width: 80vw;
+    border-radius: 8px;
+    padding: 0;
+}
+
+.mx_FileInfoModal {
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+}
+
+.mx_FileInfoModal_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(-color-border);
+}
+
+.mx_FileInfoModal_title {
+    font-size: 18px;
+}
+
+.mx_FileInfoModal_closeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    
+    &:hover {
+        background-color: var(--cpd-color-bg-subtle-secondary);
+    }
+    
+    svg {
+        width: 16px;
+        height: 16px;
+        color: var(--cpd-color-text-secondary);
+    }
+}
+
+.mx_FileInfoModal_content {
+    padding: 0 24px 24px;
+    overflow-y: auto;
+}
+
+.mx_FileInfoModal_infoGrid {
+    display: flex;
+    flex-direction: column;
+}
+
+.mx_FileInfoModal_infoRow {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 16px;
+    align-items: baseline;
+}
+
+.mx_FileInfoModal_infoLabel {
+    color: var(--cpd-color-text-secondary);
+}
+
+.mx_FileInfoModal_infoValue {
+    word-break: break-word;
+}
